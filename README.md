@@ -7,6 +7,12 @@ Get a service account.
 - Go to keys
 - Download a **JSON** key
 
+**IMPORTANT!**
+----------------------------------------------------
+- Ensure that you **DO NOT** commit your **virtual environment**.
+- The folder named **.rasa** contains caches whenever you train the chatbot. I have removed the cache which might require you to train the chatbot before running
+- The .rasa/cache folder size might become large overtime. keep an eye on it.
+
 ----------------------------------------------------
 // ALL RUN COMMANDS SHOULD NOT INCLUDE THE QUOTATION MARKS: ""
 
