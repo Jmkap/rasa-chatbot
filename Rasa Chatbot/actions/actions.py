@@ -144,7 +144,7 @@ class ActionConsultKnowledge(Action):
         
         # Use a service account.
         if not _apps:
-            cred = credentials.Certificate("C:/Users/Jmkap/Desktop/ChatBot Development/Rasa Chatbot/service account/knowledgebase.json")
+            cred = credentials.Certificate("D:/Izzy/THESIS2/rasa-chatbot-main/Rasa Chatbot/service account/knowledgebase.json")
             initialize_app(cred)
         
         db = firestore.client()
