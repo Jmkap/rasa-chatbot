@@ -47,7 +47,7 @@ How to Run Rasa Chatbot:
 
 There are two parts of the chatbot: The .yml files and the actions.py file. 
 
---------------------------.yml Files---------------------------------
+-----------------------------------------------------------
 The .yml files mainly include chatbot settings, nlu, domain, stories, etc.
 - domain.yml: includes entities, utterances/responses, additional actions, forms, etc.
 
@@ -63,9 +63,9 @@ The .yml files mainly include chatbot settings, nlu, domain, stories, etc.
 	(if not confident with the changes in these files, MAKE SURE IT WILL NOT BREAK THE CHATBOT FIRST OR CREATE A BACKUP)
 
 *FOR FURTHER INFORMATION, VISIT THE RASA API DOCUMENTATION: https://rasa.com/docs/rasa/*
-------------------------------END------------------------------------
+------------------------------------------------------------------
 
---------------------------ACTIONS.PY---------------------------------
+-----------------------------------------------------------
 The actions.py is a python file where you can define custom actions
 - rasa includes "actions" which are a set of instruction on what the chatbot needs to do.
 
@@ -82,7 +82,7 @@ The actions.py is a python file where you can define custom actions
 
 - We are also able to store entities from other sources into the chatbot's existing entities, provided that the stored entities are the appropriate/expected data type (look at domain.yml for entities)
 
-------------------------------END-------------------------------------
+-------------------------------------------------------------------
 
 To run and use the chatbot:
 
