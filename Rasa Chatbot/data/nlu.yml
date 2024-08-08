@@ -1,0 +1,178 @@
+version: "3.1"
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+    - yup
+    - yep
+    - yeah
+    - right
+    - yeppers
+    - ye
+- intent: deny
+  examples: |
+    - no
+    - n
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+- intent: mood_great
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+- intent: say_symptom
+  examples: |
+    - I feel [bloated](symptom)
+    - I have been having [irregular periods](symptom)
+    - I have been [vomiting](symptom) frequently recently.
+    - I am experiencing [nausea](symptom) every morning
+    - My [back hurts](symptom) after sleeping
+    - Lately, I've been feeling more [constipated](symptom) than usual
+    - I have been dealing with [heavy periods](symptom) for the past few months
+    - I experience [heavy bleeding](symptom) during my menstrual cycle
+    - I am [bleeding more](symptom) than usual
+    - I have [painful periods](symptom)
+    - My [periods are longer](symptom) than usual
+    - I feel [pelvic pain](symptom)
+    - I have [frequent urination](symptom)
+    - I have [difficulty urinating](symptom)
+    - My [stomach is growing](symptom)
+    - I have [pain in my stomach](symptom)
+    - I feel [pain in the lower back](symptom)
+    - I experience [pain during sex](symptom)
+    - [nausea](symptom)
+    - [acne](symptom)
+    - [Acne](symptom)
+- intent: repeat_symptoms
+  examples: |
+    - what are my symptoms again?
+    - can you remind me of my symptoms?
+    - I need the list of symptoms I gave you
+    - repeat my symptoms
+    - Give me a history of my symptoms
+    - remind symptoms
+    - repeat symptoms
+    - symptoms?
+    - what my symptoms
+    - my symptoms
+- intent: say_unwell
+  examples: |
+    - I do not feel so good
+    - I don't feel so good
+    - I'm feeling sick
+    - I feel unwell
+    - I've been feeling weird
+    - I am experiencing weird symptoms
+    - I am experiencing symptoms
+    - I feel weird
+    - I feel bad
+    - I feel terrible
+    - I'm not doing well
+- intent: clear_list
+  examples: |
+    - clear list
+    - delete list
+    - I want a new list of symptoms
+    - new list
+    - clear my list
+    - delete my symptoms
+    - clear my symptoms
+    - Remove list
+    - Remove symptoms
+    - I want to remove my symptoms
+- intent: say_age
+  examples: |
+    - I am [28](age)
+    - I am [30](age) years old
+    - I am [13](age) yrs old
+    - I am [20](age)
+    - age [20](age)
+    - [25](age)
+    - [15](age)
+    - [50](age)
+    - [54](age)
+- intent: say_name
+  examples: |
+    - My name is [Mark](PERSON)
+    - I am [john](PERSON)
+    - [matthew](PERSON)
+    - [James](PERSON)
+    - you can call me [Alice](PERSON)
+    - I'm [natalie](PERSON)
+    - [natalie](PERSON)
+- intent: ask_user_info
+  examples: |
+    - What is my info
+    - What is my name
+    - What is my age
+    - Tell me my name
+    - Tell me my age
+    - What's my name?
+    - What's my age?
+    - What's my info?
+- intent: test_symptom_form
+  examples: |
+    - run symptom form
+    - test symptom form
+    - symptom form
+    - form 2
+    - run form
+    - test form
+- lookup: PERSON
+  examples: |
+    - james
+    - john
+    - robert
+    - michael

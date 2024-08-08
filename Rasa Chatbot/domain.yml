@@ -1,0 +1,223 @@
+version: '3.1'
+intents:
+- affirm
+- ask_user_info
+- bot_challenge
+- clear_list
+- confirm
+- deny
+- goodbye
+- greet
+- mood_great
+- repeat_symptoms
+- say_age
+- say_name
+- say_symptom
+- say_symptom_context
+- say_unwell
+- test_symptom_form
+entities:
+- age
+- symptom
+- PERSON
+- context
+- regular
+slots:
+  symptom:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: symptom
+
+  context:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: context
+
+  symptom_context_list:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+  PERSON:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: PERSON
+
+  age:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: age
+
+  is_new_user:
+    type: bool
+    initial_value: true
+    influence_conversation: false
+    mappings: []
+
+  is_regular:
+    type: bool
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: regular
+
+  asked_new:
+    type: bool
+    initial_value: false
+    influence_conversation: false
+    mappings: []
+
+  user_symptoms:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+  user_conditions:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+  possible_conditions:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+  unique_symptoms_kb:
+    type: list
+    influence_conversation: true
+    mappings: []
+
+  has_symptom:
+    type: bool
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: true
+      intent: affirm
+      conditions:
+      - active_loop: symptom_form
+        requested_slot: has_symptom
+    - type: from_intent
+      value: false
+      intent: deny
+      conditions:
+      - active_loop: symptom_form
+        requested_slot: has_symptom
+        
+  asking_label:
+    type: bool
+    initial_value: true
+    influence_conversation: false
+    mappings: []
+
+  has_label:
+    type: bool
+    initial_value: false
+    influence_conversation: false
+    mappings: []
+
+  current_symptom:
+    type: text
+    influence_conversation: false
+    mappings: []
+
+  loop_counter:
+    type: any
+    initial_value: 0
+    mappings: []
+
+  diagnosed_condition:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+  related_labels:
+    type: list
+    influence_conversation: false
+    mappings: []
+  
+  grouped_questions:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+  grouped_symptoms:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+forms:
+  user_form:
+    required_slots:
+    - PERSON
+    - age
+
+  symptom_form:
+    required_slots:
+    - has_symptom
+
+responses:
+  utter_iamabot:
+  - text: I am a bot, powered by Rasa.
+
+  utter_sympathy:
+  - text: I'm sorry to hear that :(
+
+  utter_ask_symptom:
+  - text: Can you tell me more about what you're feeling? Pain? or something else?
+
+  utter_greetings:
+  - text: Hello! How can I assist you today?
+
+  utter_assist:
+  - text: I'm here to assist you in menstruation related concerns in any way I can!
+  
+  utter_feelings:
+  - text: How are you feeling today?
+  
+  utter_confirmation:
+  - text: Understood! I just want to make sure this isn't a mistake. Are you sure you want to delete your symptom lists?
+  
+  utter_success_delete:
+  - text: I have renewed your symptom list. Tell me if there are any unusual symptoms you're feeling!
+  
+  utter_cancel_delete:
+  - text: Ah, so it was a misunderstanding. I cancelled deleting the list.
+  
+  utter_scope:
+  - text: IMPORTANT! While I aspire to help you to the best of my ability, I cannot replace a doctor's diagnosis :(. If you feel that you are in need of urgent medical assistance please seek seek help from a healthcare professional immediately!
+  
+  utter_ask_age:
+  - text: To provide you with the best possible experience, could you please let me know your age? This helps me tailor my responses better to your needs.
+  
+  utter_new:
+  - text: Hello! Is this your first time meeting me?
+  
+  utter_ask_PERSON:
+  - text: Nice to meet you! What's your name?
+actions:
+- utter_new
+- action_consult_knowledge
+- action_say_symptom
+- utter_feelings
+- action_trigger_listen_new
+- action_submit_user_form
+- utter_scope
+- action_repeat_symptoms
+- action_say_disclaimer
+- action_get_user_data
+- action_display_user_conditions
+- action_ask_has_symptom
+- validate_symptom_form
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

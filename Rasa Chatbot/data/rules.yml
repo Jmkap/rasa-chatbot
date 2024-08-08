@@ -1,0 +1,65 @@
+version: "3.1"
+
+rules:
+- rule: Greet new users
+  condition:
+    - slot_was_set:
+      - is_new_user: True
+  steps:
+    - intent: greet
+    - action: utter_new
+    - action: action_trigger_listen_new
+    - slot_was_set:
+      - asked_new: True
+
+- rule: Load user form if affirmed
+  condition:
+    - slot_was_set:
+      - asked_new: True
+  steps:
+    - intent: affirm
+    - action: action_trigger_listen_new
+    - slot_was_set:
+      - asked_new: False
+    - action: user_form
+    - active_loop: user_form
+
+- rule: Submit user form
+  condition:
+  # Condition that form is active.
+    - active_loop: user_form
+  steps:
+    # Form is deactivated
+    - action: user_form
+    - active_loop: null
+    - slot_was_set:
+      - requested_slot: null
+    # The actions we want to run when the form is submitted.
+    - action: utter_scope
+    - action: action_submit_user_form
+    - action: utter_feelings
+    - slot_was_set:
+      - age: 25
+    - slot_was_set:
+      - PERSON: Gandhi
+    - slot_was_set:
+      - is_new_user: False
+
+- rule: user says symptom
+  steps:
+    - intent: say_symptom
+    - action: action_say_symptom
+    - action: action_consult_knowledge
+    - action: symptom_form
+    - active_loop: symptom_form
+
+- rule: symptom form completed
+  condition:
+  - active_loop: symptom_form
+  steps:
+    - action: symptom_form
+    - active_loop: null # indicates form is completed
+    - action: action_display_user_conditions
+
+
+
