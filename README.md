@@ -1,3 +1,13 @@
+**WAIT! YOUR FILES ARE INCOMPLETE**
+Get a service account.
+- need to be added to the database
+- Go to https://console.cloud.google.com/iam-admin/serviceaccounts?project=menstrual-app-4b6b5&supportedpurview=project and select the menstrual app project
+- Click the enabled "drflow-knowledge..."
+- Go to keys
+- Download a **JSON** key
+.   
+.
+.
 // ALL RUN COMMANDS SHOULD NOT INCLUDE THE QUOTATION MARKS: ""
 // ENSURE THAT YOUR CLI DIRECTORY IS AT THE FOLDER "Rasa Chatbot" run: "cd "path/to/rasa chatbot""
 
