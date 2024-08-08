@@ -7,6 +7,7 @@ Get a service account.
 - Download a **JSON** key
 
 // ALL RUN COMMANDS SHOULD NOT INCLUDE THE QUOTATION MARKS: ""
+
 // ENSURE THAT YOUR CLI DIRECTORY IS AT THE FOLDER "Rasa Chatbot" run: "cd "path/to/rasa chatbot""
 
 Things to do before anything else:
