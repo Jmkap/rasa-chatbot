@@ -81,6 +81,7 @@ The actions.py is a python file where you can define custom actions
 	(more info on these online/documentation)
 
 - We are also able to store entities from other sources into the chatbot's existing entities, provided that the stored entities are the appropriate/expected data type (look at domain.yml for entities)
+
 ------------------------------END-------------------------------------
 
 To run and use the chatbot:
