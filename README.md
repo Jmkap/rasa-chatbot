@@ -10,6 +10,7 @@ Get a service account.
 **IMPORTANT!**
 ----------------------------------------------------
 - Ensure that you **DO NOT** commit your **virtual environment**.
+- Also **DO NOT** commit the **service account**.
 - The folder named **.rasa** contains caches whenever you train the chatbot. I have removed the cache which might require you to train the chatbot before running
 - The .rasa/cache folder size might become large overtime. keep an eye on it.
 
