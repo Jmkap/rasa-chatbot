@@ -1,4 +1,5 @@
-**WAIT! YOUR FILES ARE INCOMPLETE**
+*WAIT! YOUR FILES ARE INCOMPLETE*
+
 Get a service account.
 - need to be added to the database
 - Go to https://console.cloud.google.com/iam-admin/serviceaccounts?project=menstrual-app-4b6b5&supportedpurview=project and select the menstrual app project
