@@ -197,7 +197,12 @@ class ActionConsultKnowledge(Action):
             symptoms = condition["Symptoms"]
             for symptom in symptoms:
                 if symptom not in unique_symptoms_kb and symptom not in user_symptoms:
-                    unique_symptoms_kb.append(symptom)
+                    symptom_data = {
+                        "name": symptom,
+                        "duration": 0,     # Default or placeholder value
+                        "intensity": -1     # Default or placeholder value
+                    }
+                    unique_symptoms_kb.append(symptom_data)
         
         # Debug code
         # dispatcher.utter_message(f"Possible conditions:")
@@ -206,7 +211,8 @@ class ActionConsultKnowledge(Action):
         #     dispatcher.utter_message(f"{condition_name}")
             
         label_ref = db.collection(u'Label')
-        query = label_ref.where(u'Related', u'array_contains_any', unique_symptoms_kb)
+        unique_symptom_names = [symptom_data["name"] for symptom_data in unique_symptoms_kb]
+        query = label_ref.where(u'Related', u'array_contains_any', unique_symptom_names)
         results = query.stream()
 
         related_labels = []
@@ -214,6 +220,9 @@ class ActionConsultKnowledge(Action):
         for label in results:
             label_data = label.to_dict()
             label_data['name'] = label.id
+            if label.id == "Weight":
+                stmt = label_data["Statement"]
+                dispatcher.utter_message(text=f"{stmt}")
             related_labels.append(label_data)
         
         # Debug code
@@ -268,11 +277,14 @@ class ActionDisplayUserCondition(Action):
                 symptom_data = {
                     "control": "record_symptom",
                     "data": {
-                        "symptomName": symptom
+                        "symptomName": symptom["name"],
+                        "duration": symptom["duration"],
+                        "intensity": symptom["intensity"]
                     }
                 }
                 dispatcher.utter_message(json_message=symptom_data)
-                dispatcher.utter_message(text=f"{count}. {symptom}")
+                symptom_name = symptoms["name"]
+                dispatcher.utter_message(text=f"{count}. {symptom_name}")
                 count+=1
                 
             
@@ -338,59 +350,102 @@ class ActionAskHasSymptom (Action):
         label_question = ""
         current_symptom = tracker.get_slot("current_symptom")
         
+        # Debug
+        dispatcher.utter_message(text=f"Entered AskHasSymptom")
+        
         if symptoms:
-            if related_labels and not grouped_questions:
+            # Debug
+            dispatcher.utter_message(text=f"Related Labels: {related_labels}")
+            
+            if related_labels and (not grouped_questions or not grouped_symptoms):
+                dispatcher.utter_message(text=f"There are labels")
                 for label in related_labels:
-                    if symptoms[counter] in label['Related']:
+                    if symptoms[counter]["name"] in label['Related']:
                         grouped_symptoms.extend(label['Related'])
                         grouped_questions.extend(label['Questions'])
                         label_name = label['name']
-                        if 'Statement' in label:
+                        
+                        label_statement = label.get("Statement", None)
+                        dispatcher.utter_message(text=f"The label statement of {label_name} is {label_statement}")
+                        if 'Statement' in label.keys():
+                            # Debug
+                            dispatcher.utter_message(text=f"There is a statement for label '{label_name}'")
+                            
                             label_question = label['Statement']
+                        else:
+                            dispatcher.utter_message(text=f"There is NON statement for label '{label_name}'")
                         related_labels.remove(label)
                         break
-                filtered_symptoms = [symptom for symptom in grouped_symptoms if symptom in symptoms]
+                    
+                symptom_names = [symptom["name"] for symptom in symptoms]
+                filtered_symptoms = [symptom for symptom in grouped_symptoms if symptom in symptom_names]
                 filtered_indices = [grouped_symptoms.index(symptom) for symptom in filtered_symptoms]
                 filtered_questions = [grouped_questions[i] for i in filtered_indices]
                 grouped_symptoms = filtered_symptoms
                 grouped_questions = filtered_questions
                 asking_label = True
+            
+            # Debug
+            dispatcher.utter_message(text=f"Grouped Symptoms: {grouped_symptoms}")
+            dispatcher.utter_message(text=f"Grouped Questions: {grouped_questions}")
+            dispatcher.utter_message(text=f"Unique Symptoms: {symptoms}")
+            
                          
             # if there is a grouped question to be addressed, address it  first 
             # else, continue normally with the current code below
             # dispatcher.utter_message(f"The current label is: {label_name.lower()}")
             if label_name.lower() != "other" and (grouped_questions or grouped_symptoms):
-                # dispatcher.utter_message(f"Label: {label_name.lower()} is not the same as Label: other")
+                # ===DEBUG CODE====
+                dispatcher.utter_message(f"Label: {label_name.lower()} is not the same as Label: other")
+                
+                # If currently asking label
+                # return asking_label and related_labels to their slots, and update all other slots
+                # the flow should return to validate symptom form
                 if asking_label:
+                    # Debug
+                    dispatcher.utter_message(text=f"Asking Label now...")
+                    
                     dispatcher.utter_message(f"{label_question}")
                     return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label)]
+                
+                # If the user said no to the asked label in validate symptom form
                 if not has_label:
+                    
                     #Debug 
                     # dispatcher.utter_message(text=f"----------Debugging prints-----------")
-                    # dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}")
+                    dispatcher.utter_message(text=f"Entered not has_label. We should not be here...")
+                    dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}")
                     # dispatcher.utter_message(text=f"-------------------------------------")
                     # dispatcher.utter_message(text=f"\nSymptom List: {symptoms}")
-                    # dispatcher.utter_message(text=f"\nAccording to your response, you have not experienced anything related to {label_name}")
-                    # dispatcher.utter_message(text=f"\nRemoving the grouped symptoms from your possible symptom lists...")
                     
-                    if counter < len(symptoms):
-                        if symptoms[counter]:
-                            dispatcher.utter_message(text=f"Have you experienced {symptoms[counter]}")
-                            current_symptom = symptoms[counter]
-                            symptoms.remove(symptoms[counter])
+                    if symptoms[counter]:
+                        # Debug Code
+                    
+                        # Remove the symptoms with denied labels
+                        symptoms = [symptom for symptom in symptoms if symptom["name"] not in grouped_symptoms]
+                    
+                    # Debug Code
                     return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", []), SlotSet("grouped_symptoms", []), SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom)]
-
+                
+                # Debug
+                dispatcher.utter_message(text=f"Not asking for labels anymore")
+                
+                # user said yes to the label
+                # the form should loop and skip to this part until the grouped questions and symptoms are empty
                 question = grouped_questions.pop(0)
                 asked_symptom = grouped_symptoms.pop(0)
                 current_symptom = asked_symptom
-                symptoms.remove(asked_symptom)
-                    
+                symptoms = [symptom for symptom in symptoms if symptom["name"] != asked_symptom]
+                
                 # Debugging prints
                 # dispatcher.utter_message(text=f"----------Debugging prints-----------")
                 # dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}")
                 # dispatcher.utter_message(text=f"-------------------------------------")
+                
+                # Ask the question for that symptom
                 dispatcher.utter_message(text=f"{question}")
                 
+                # Return updated slots to validate symptom form
                 return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom)]
             
             #Debug prints:    
@@ -398,11 +453,16 @@ class ActionAskHasSymptom (Action):
             # dispatcher.utter_message(text=f"----------Debugging prints-----------")
             # dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}")
             # dispatcher.utter_message(text=f"-------------------------------------")
+            
+            # If the label is "Other"
             if label_name.lower() == "other":
+                # Debug
+                dispatcher.utter_message(text=f"Label is \"Other\"")
+                
                 question = grouped_questions.pop(0)
                 asked_symptom = grouped_symptoms.pop(0)
                 current_symptom = asked_symptom
-                symptoms.remove(asked_symptom)
+                symptoms = [symptom for symptom in symptoms if symptom["name"] != asked_symptom]
                 
                 # dispatcher.utter_message(text=f"----------Debugging prints-----------")
                 # dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}")
@@ -410,11 +470,41 @@ class ActionAskHasSymptom (Action):
                 
                 dispatcher.utter_message(text=f"{question}")
                 return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom)]
-            dispatcher.utter_message(text=f"Have you experienced {symptoms[counter]}")
+            
+            dispatcher.utter_message(text=f"Symptom has no label! Contact administration for this!")
+            symptom_name = symptoms[counter]["name"]
+            dispatcher.utter_message(text=f"Have you experienced {symptom_name}")
             return [SlotSet("unique_symptoms_kb", symptoms)]
         
         dispatcher.utter_message(text="FAILURE")
         return []
+    
+# class AskForNumberInput(Action):
+#     def name(self) -> Text:
+#         return "action_ask_number_input"
+
+#     def run(
+#         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+#     ) -> List[EventType]:
+#         asking_duration = tracker.get_slot("asking_duration")
+#         asking_intensity = tracker.get_slot("asking_intensity")
+        
+#         # If asking duration
+#         if asking_duration:
+#         # Execute action
+#             dispatcher.utter_message(text=f"Including today, for how many days have you been experiencing this symptom?")
+        
+#         # else if asking intensity
+#         elif asking_intensity:
+#         # Execute action
+#             dispatcher.utter_message(text=f"From a scale of 1-10, painful is it?")
+        
+#         # else
+#         else:
+#         # return immediately and skip next cycle
+#             # Debug Code
+#             dispatcher.utter_message(text=f"Skipping this cycle...")
+#             return[SlotSet("skip", True)] 
     
 class ValidateSymptomForm(FormValidationAction):
     def name(self) -> Text:
@@ -437,9 +527,27 @@ class ValidateSymptomForm(FormValidationAction):
         diagnosed_conditions = tracker.get_slot("diagnosed_condition")
         
         grouped_symptoms = tracker.get_slot("grouped_symptoms")
+        asking_duration = tracker.get_slot("asking_duration")
+        asking_intensity = tracker.get_slot("asking_intensity")
         asking_label = tracker.get_slot("asking_label")
         has_label = tracker.get_slot("has_label")
+        skip_cycle = tracker.get_slot("skip")
         
+        # Debug Code
+        dispatcher.utter_message(text=f"Exited Ask Actions")
+        dispatcher.utter_message(text=f"Starting the cycle")
+        dispatcher.utter_message(text=f"Skip Cycle?: {skip_cycle}")
+        
+        # if request to skip cycle,
+        # return immediately
+        if (skip_cycle):
+            # Debug
+            dispatcher.utter_message(text=f"Skipping this cycle...")
+            
+            skip_cycle = False
+            return {"has_symptom" : None, "number_input": None, "skip": skip_cycle}
+        
+        # Initialize arrays
         if not user_symptoms:
             user_symptoms = []
         if not diagnosed_conditions:
@@ -447,21 +555,49 @@ class ValidateSymptomForm(FormValidationAction):
 
         has_been_diagnosed = False
         diagnosed = []
-            
-        if asking_label:
-            if not slot_value:
-                symptoms = [symptom for symptom in symptoms if symptom not in grouped_symptoms]
-            if symptoms:    
-                return {"has_label" : slot_value, "asking_label" : False, "possible_conditions" : conditions, "has_symptom" : None, "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms}
         
+        # Will be marked true if 
+        # asking_label was set to true in AskHasSymptom
+        if asking_label:
+            # Debug
+            dispatcher.utter_message(text=f"Asking Label in validate symptom form")
+            
+            # If user said no,
+            # Cut out symptoms from the current label (which are in the current grouped symptoms slot)
+            if not slot_value:
+                dispatcher.utter_message(text=f"\nAccording to your response, you have not experienced anything related to this label")
+                dispatcher.utter_message(text=f"\nRemoving the grouped symptoms from your possible symptom lists...")
+                
+                symptoms = [symptom for symptom in symptoms if symptom["name"] not in grouped_symptoms]
+                
+                if symptoms:
+                    return {"grouped_questions": [], "grouped_symptoms": [], "has_label" : slot_value, "possible_conditions" : conditions, "has_symptom" : None, "number_input": None, 
+                            "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms}
+            # If there are remaining symptoms, 
+            # return the user's answer (slot value), update asking_label and all other slots
+            # has_symptom slot must be set to none so the form continues to loop.
+            # this returns to AskHasSymptom and skips if not has_label part
+            if symptoms:
+                return {"has_label" : slot_value, "asking_label" : False, "possible_conditions" : conditions, "has_symptom" : None, "number_input": None, 
+                        "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms}
+        
+        if asking_duration:
+            duration = tracker.slots.get("number_input")
+            dispatcher.utter_message(text=f"The duration of your symptom is {duration} days")
+            
+        elif asking_intensity:
+            intensity = tracker.slots.get("number_input")
+            dispatcher.utter_message(text=f"The intensity of your pain is {intensity}/10")
         #Debug Code    
         # dispatcher.utter_message(text=f"Current Counter and Symptom: {current_counter} and {current_symptom}")           
         # dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}")
         
+        # If the user says yes to symptom question
         if slot_value:
             #Debug Code
             #dispatcher.utter_message(text=f"I am inserting {current_symptom} to the user symptoms")
             
+            # Append the current symptom being asked to user's symptoms
             user_symptoms.append(current_symptom)
             if conditions:
                 for condition in conditions:
@@ -470,7 +606,11 @@ class ValidateSymptomForm(FormValidationAction):
                             condition["score"] += 2
                         else:
                             condition["score"] += 1
-                    if condition["score"] >= len(condition["Symptoms"])/2 and condition not in diagnosed_conditions:
+
+                    # If a condition has a high enough score, and it's not an already diagnosed condition
+                    # Display to the user progress so far.
+                    diagnosed_conditions_names = [cond['name'] for cond in diagnosed_conditions]
+                    if condition["score"] >= len(condition["Symptoms"])/2 and condition["name"] not in diagnosed_conditions_names:
                         has_been_diagnosed = True
                         diagnosed.append(condition)
                     
@@ -485,7 +625,7 @@ class ValidateSymptomForm(FormValidationAction):
         # dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}\n\nUser symptoms: {user_symptoms}")
         # dispatcher.utter_message(text=f"-------------------------------------")
         
-        
+        # Display progress so far if there's a new diagnosis.
         if has_been_diagnosed:
             dispatcher.utter_message(text="Your symptoms so far are:")
             count = 1
@@ -494,7 +634,7 @@ class ValidateSymptomForm(FormValidationAction):
                 count += 1
             dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
             count = 1
-            for condition in diagnosed:
+            for condition in diagnosed_conditions:
                 condition_name = condition['name']
                 condition_score = condition['score']
                 threat = condition['Life-Threat']
@@ -508,13 +648,16 @@ class ValidateSymptomForm(FormValidationAction):
         unique_symptoms_len = len(symptoms) 
         #Debug Prints
         # dispatcher.utter_message(text=f"\n\nSymptom Length: {unique_symptoms_len}\nCounter: {current_counter}")
-            
+        
+        # Is there are remaining symptoms,
+        # Update condition, has symptom, user symptoms, and diagnosed conditions.
         if symptoms:
             #Debug prints
             # dispatcher.utter_message(text=f"\nThere are symptoms remaining: {symptoms}")
-            return {"possible_conditions" : conditions, "has_symptom" : None, "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions}
+            return {"possible_conditions" : conditions, "has_symptom" : None, "number_input": None, "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions}
         # dispatcher.utter_message(text=f"\nThere are no more symptoms remaining: {symptoms}. The form should stop now and the user conditions should be displayed")
-        return {"possible_conditions" : conditions, "has_symptom" : slot_value, "loop_counter": 0, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions}
+        return {"possible_conditions" : conditions, "has_symptom" : slot_value, "number_input": -1, "loop_counter": 0, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions}
+            
     
 # Asks the User if has symptom
 class ActionTestForm (Action):

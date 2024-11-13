@@ -22,6 +22,8 @@ entities:
 - PERSON
 - context
 - regular
+- number
+
 slots:
   symptom:
     type: text
@@ -117,8 +119,26 @@ slots:
     initial_value: true
     influence_conversation: false
     mappings: []
+  
+  asking_intensity:
+    type: bool
+    initial_value: False
+    influence_conversation: false
+    mappings: []
+
+  asking_duration:
+    type: bool
+    initial_value: False
+    influence_conversation: false
+    mappings: []
 
   has_label:
+    type: bool
+    initial_value: false
+    influence_conversation: false
+    mappings: []
+
+  skip:
     type: bool
     initial_value: false
     influence_conversation: false
@@ -128,6 +148,13 @@ slots:
     type: text
     influence_conversation: false
     mappings: []
+
+  number_input:
+    type: any
+    initial_value: -1
+    mappings:
+    - type: from_entity
+      entity: number
 
   loop_counter:
     type: any
@@ -163,6 +190,7 @@ forms:
   symptom_form:
     required_slots:
     - has_symptom
+    # - number_input
 
 responses:
   utter_iamabot:
