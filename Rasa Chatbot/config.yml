@@ -34,7 +34,11 @@ pipeline:
     constrain_similarities: true
   - name: RegexEntityExtractor
     case_sensitive: False
-    use_lookup_tables: True
+    entity:
+      - day
+    regex:
+      day: "\\b\\d+\\s?(day|days)?\\b"
+  
   # - name: EntitySynonymMapper
   # - name: ResponseSelector
   #   epochs: 100

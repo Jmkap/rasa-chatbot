@@ -138,11 +138,53 @@ nlu:
     - I am [30](age) years old
     - I am [13](age) yrs old
     - I am [20](age)
+    - I'm [7](age)
+    - Almost [60](age) years
     - age [20](age)
     - [25](age)
+    - [50](age) years
+    - [43](age) yrs
     - [15](age)
+    - [22](age) years
+    - [42](age) yrs
     - [50](age)
+    - [89](age) years
+    - [90](age) yrs
     - [54](age)
+- intent: say_days
+  examples: |
+    - It's been [28](day) days
+    - A week is [7](day) days long
+    - It's been [5](day) days
+    - I've waited for [3](day) days
+    - The event lasts for [10](day) days
+    - I was sick for [6](day) days
+    - [4](day) day visit
+    - [8](day) days long sickness
+    - [3](day)
+    - [6](day) days
+    - [30](day)
+    - [23](day) days
+    - [5](day)
+    - [40](day) days
+    - [14](day)
+    - [7](day) days
+# - intent: provide_intensity
+#   examples: |
+#     - My pain level is [7](intensity)
+#     - The intensity is [5](intensity)
+#     - I feel [3](intensity) out of 10
+#     - The intensity of my headache is [8](intensity)
+#     - It’s [6](intensity) today
+#     - Pain level: [10](intensity)
+#     - My headache is [4](intensity) today
+#     - Intensity: [2](intensity)
+#     - [2](intensity)
+#     - [1](intensity)
+#     - [0](intensity)
+#     - about [2](intensity)
+#     - [8](intensity)
+#     - [9](intensity)
 - intent: say_name
   examples: |
     - My name is [Mark](PERSON)

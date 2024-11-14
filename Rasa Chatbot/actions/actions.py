@@ -406,7 +406,8 @@ class ActionAskHasSymptom (Action):
                     dispatcher.utter_message(text=f"Asking Label now...")
                     
                     dispatcher.utter_message(f"{label_question}")
-                    return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label)]
+                    return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), 
+                            SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("label", label_name)]
                 
                 # If the user said no to the asked label in validate symptom form
                 if not has_label:
@@ -419,8 +420,6 @@ class ActionAskHasSymptom (Action):
                     # dispatcher.utter_message(text=f"\nSymptom List: {symptoms}")
                     
                     if symptoms[counter]:
-                        # Debug Code
-                    
                         # Remove the symptoms with denied labels
                         symptoms = [symptom for symptom in symptoms if symptom["name"] not in grouped_symptoms]
                     
@@ -446,7 +445,8 @@ class ActionAskHasSymptom (Action):
                 dispatcher.utter_message(text=f"{question}")
                 
                 # Return updated slots to validate symptom form
-                return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom)]
+                return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), 
+                        SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom), SlotSet("label", label_name)]
             
             #Debug prints:    
             # dispatcher.utter_message(text=f"\nSymptom List: {symptoms}")
@@ -469,7 +469,8 @@ class ActionAskHasSymptom (Action):
                 # dispatcher.utter_message(text=f"-------------------------------------")
                 
                 dispatcher.utter_message(text=f"{question}")
-                return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom)]
+                return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), 
+                        SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom), SlotSet("label", label_name)]
             
             dispatcher.utter_message(text=f"Symptom has no label! Contact administration for this!")
             symptom_name = symptoms[counter]["name"]
@@ -479,32 +480,47 @@ class ActionAskHasSymptom (Action):
         dispatcher.utter_message(text="FAILURE")
         return []
     
-# class AskForNumberInput(Action):
-#     def name(self) -> Text:
-#         return "action_ask_number_input"
+class ActionAskDuration(Action):
+    def name(self) -> Text:
+        return "action_ask_duration"
 
-#     def run(
-#         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
-#     ) -> List[EventType]:
-#         asking_duration = tracker.get_slot("asking_duration")
-#         asking_intensity = tracker.get_slot("asking_intensity")
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        asking_duration = tracker.get_slot("asking_duration")
         
-#         # If asking duration
-#         if asking_duration:
-#         # Execute action
-#             dispatcher.utter_message(text=f"Including today, for how many days have you been experiencing this symptom?")
+        dispatcher.utter_message(text=f"Entered ASK DURATION")
         
-#         # else if asking intensity
-#         elif asking_intensity:
-#         # Execute action
-#             dispatcher.utter_message(text=f"From a scale of 1-10, painful is it?")
+        # If asking duration
+        if asking_duration:
+        # Execute action
+            dispatcher.utter_message(text=f"Including today, for how many days have you been experiencing this symptom?")
+            return[]
         
-#         # else
-#         else:
-#         # return immediately and skip next cycle
-#             # Debug Code
-#             dispatcher.utter_message(text=f"Skipping this cycle...")
-#             return[SlotSet("skip", True)] 
+        dispatcher.utter_message(text=f"Skipping ASK DURATION, setting slot to 0")
+        dispatcher.utter_message(text=f"If you still see me, something's wrong")
+        return[SlotSet("duration", 0)] 
+    
+class ActionAskIntensity(Action):
+    def name(self) -> Text:
+        return "action_ask_intensity"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        asking_intensity = tracker.get_slot("asking_intensity")
+        
+        dispatcher.utter_message(text=f"Entered ASK INTENSITY")
+        
+        # If asking duration
+        if asking_intensity:
+        # Execute action
+            dispatcher.utter_message(text=f"On a scale of 0-10 (0 is no pain), how intense is the pain?")
+            return[]
+        
+        dispatcher.utter_message(text=f"Skipping ASK INTENSITY, setting slot to 0")
+        dispatcher.utter_message(text=f"If you still see me, something's wrong")
+        return[SlotSet("intensity", 0)] 
     
 class ValidateSymptomForm(FormValidationAction):
     def name(self) -> Text:
@@ -512,7 +528,7 @@ class ValidateSymptomForm(FormValidationAction):
     
     def validate_has_symptom(
         self,
-        slot_value: Any,
+        slot_value: any,
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: DomainDict,
@@ -545,7 +561,7 @@ class ValidateSymptomForm(FormValidationAction):
             dispatcher.utter_message(text=f"Skipping this cycle...")
             
             skip_cycle = False
-            return {"has_symptom" : None, "number_input": None, "skip": skip_cycle}
+            return {"has_symptom" : None, "duration": None, "skip": skip_cycle}
         
         # Initialize arrays
         if not user_symptoms:
@@ -571,23 +587,16 @@ class ValidateSymptomForm(FormValidationAction):
                 symptoms = [symptom for symptom in symptoms if symptom["name"] not in grouped_symptoms]
                 
                 if symptoms:
-                    return {"grouped_questions": [], "grouped_symptoms": [], "has_label" : slot_value, "possible_conditions" : conditions, "has_symptom" : None, "number_input": None, 
+                    return {"grouped_questions": [], "grouped_symptoms": [], "has_label" : slot_value, "possible_conditions" : conditions, "has_symptom" : None, "duration": None, 
                             "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms}
             # If there are remaining symptoms, 
             # return the user's answer (slot value), update asking_label and all other slots
             # has_symptom slot must be set to none so the form continues to loop.
             # this returns to AskHasSymptom and skips if not has_label part
             if symptoms:
-                return {"has_label" : slot_value, "asking_label" : False, "possible_conditions" : conditions, "has_symptom" : None, "number_input": None, 
+                return {"has_label" : slot_value, "asking_label" : False, "possible_conditions" : conditions, "has_symptom" : None, "duration": None, 
                         "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms}
         
-        if asking_duration:
-            duration = tracker.slots.get("number_input")
-            dispatcher.utter_message(text=f"The duration of your symptom is {duration} days")
-            
-        elif asking_intensity:
-            intensity = tracker.slots.get("number_input")
-            dispatcher.utter_message(text=f"The intensity of your pain is {intensity}/10")
         #Debug Code    
         # dispatcher.utter_message(text=f"Current Counter and Symptom: {current_counter} and {current_symptom}")           
         # dispatcher.utter_message(text=f"Grouped symptoms: {grouped_symptoms}\n\nUnique symptoms: {symptoms}")
@@ -598,6 +607,7 @@ class ValidateSymptomForm(FormValidationAction):
             #dispatcher.utter_message(text=f"I am inserting {current_symptom} to the user symptoms")
             
             # Append the current symptom being asked to user's symptoms
+            asking_duration = True
             user_symptoms.append(current_symptom)
             if conditions:
                 for condition in conditions:
@@ -645,19 +655,67 @@ class ValidateSymptomForm(FormValidationAction):
             
             has_been_diagnosed = False
         
-        unique_symptoms_len = len(symptoms) 
+        
+        
         #Debug Prints
+        # unique_symptoms_len = len(symptoms)
         # dispatcher.utter_message(text=f"\n\nSymptom Length: {unique_symptoms_len}\nCounter: {current_counter}")
         
-        # Is there are remaining symptoms,
-        # Update condition, has symptom, user symptoms, and diagnosed conditions.
-        if symptoms:
-            #Debug prints
-            # dispatcher.utter_message(text=f"\nThere are symptoms remaining: {symptoms}")
-            return {"possible_conditions" : conditions, "has_symptom" : None, "number_input": None, "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions}
-        # dispatcher.utter_message(text=f"\nThere are no more symptoms remaining: {symptoms}. The form should stop now and the user conditions should be displayed")
-        return {"possible_conditions" : conditions, "has_symptom" : slot_value, "number_input": -1, "loop_counter": 0, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions}
-            
+        # Move to next slot, update everything
+        dispatcher.utter_message(text=f"Exiting Validate Has Symptom")
+        return {"possible_conditions" : conditions, "has_symptom" : slot_value, "duration": None, "loop_counter": current_counter, 
+                "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration}
+    
+    def validate_duration(
+        self,
+        slot_value: any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        asking_duration = tracker.get_slot("asking_duration")
+        asking_intensity = tracker.get_slot("asking_intensity")
+        label = tracker.get_slot("label")
+        
+        # Debug
+        dispatcher.utter_message(text=f"Entered VALIDATE DURATION")
+        
+        if asking_duration:
+            dispatcher.utter_message(text=f"User answered: {slot_value}")
+            if label.lower() == "pain":
+                asking_intensity = True
+            else:
+                asking_intensity = False
+            return {"has_symptom": None, "duration": slot_value, "asking_intensity": asking_intensity}
+        
+        # Debug
+        dispatcher.utter_message(text=f"Skipping VALIDATE DURATION")
+        dispatcher.utter_message(text=f"If you still see this, something's wrong")
+        
+        return {"has_symptom": None, "duration": -1}
+    
+    # def validate_intensity(
+    #     self,
+    #     slot_value: any,
+    #     dispatcher: CollectingDispatcher,
+    #     tracker: Tracker,
+    #     domain: DomainDict,
+    # ) -> Dict[Text, Any]:
+    #     asking_intensity = tracker.get_slot("asking_intensity")
+        
+    #     # Debug
+    #     dispatcher.utter_message(text=f"Entered VALIDATE INTENSITY")
+        
+    #     if asking_intensity:
+    #         dispatcher.utter_message(text=f"User answered: {slot_value}")
+    #         return {"has_symptom": None, "intensity": slot_value}
+        
+    #     # Debug
+    #     dispatcher.utter_message(text=f"Skipping VALIDATE INTENSITY")
+    #     dispatcher.utter_message(text=f"If you still see this, something's wrong")
+        
+    #     return {"has_symptom": None, "intensity": -1}
+        
     
 # Asks the User if has symptom
 class ActionTestForm (Action):

@@ -2,9 +2,7 @@ version: '3.1'
 intents:
 - affirm
 - ask_user_info
-- bot_challenge
 - clear_list
-- confirm
 - deny
 - goodbye
 - greet
@@ -13,16 +11,18 @@ intents:
 - say_age
 - say_name
 - say_symptom
-- say_symptom_context
 - say_unwell
+- say_days
+# - provide_intensity
 - test_symptom_form
 entities:
 - age
+- day
+# - intensity
 - symptom
 - PERSON
 - context
 - regular
-- number
 
 slots:
   symptom:
@@ -57,6 +57,10 @@ slots:
     mappings:
     - type: from_entity
       entity: age
+      conditions:
+      - active_loop: user_form
+        requested_slot: age
+
 
   is_new_user:
     type: bool
@@ -99,7 +103,7 @@ slots:
 
   has_symptom:
     type: bool
-    influence_conversation: false
+    influence_conversation: True
     mappings:
     - type: from_intent
       value: true
@@ -113,48 +117,73 @@ slots:
       conditions:
       - active_loop: symptom_form
         requested_slot: has_symptom
+
+  duration:
+    type: float
+    min_value: 0
+    max_value: 7
+    initial_value: 0
+    influence_conversation: True
+    mappings:
+    - type: from_entity
+      entity: day
+      conditions:
+      - active_loop: symptom_form
+        requested_slot: duration
+
+  intensity:
+    type: float
+    min_value: 0
+    max_value: 10
+    initial_value: 0
+    influence_conversation: True
+    mappings: []
+    # - type: from_entity
+    #   entity: intensity
+    #   # conditions:
+    #   # - active_loop: symptom_form
+    #   #   requested_slot: intensity
         
   asking_label:
     type: bool
     initial_value: true
-    influence_conversation: false
+    influence_conversation: True
     mappings: []
   
   asking_intensity:
     type: bool
     initial_value: False
-    influence_conversation: false
+    influence_conversation: true
     mappings: []
 
   asking_duration:
     type: bool
     initial_value: False
-    influence_conversation: false
+    influence_conversation: true
     mappings: []
 
   has_label:
     type: bool
     initial_value: false
-    influence_conversation: false
+    influence_conversation: True
+    mappings: []
+  
+  label:
+    type: text
+    initial_value: ""
+    influence_conversation: False
     mappings: []
 
   skip:
     type: bool
     initial_value: false
-    influence_conversation: false
+    influence_conversation: True
     mappings: []
 
   current_symptom:
     type: text
     influence_conversation: false
     mappings: []
-
-  number_input:
-    type: any
-    initial_value: -1
-    mappings:
-    - type: from_entity
-      entity: number
 
   loop_counter:
     type: any
@@ -190,7 +219,8 @@ forms:
   symptom_form:
     required_slots:
     - has_symptom
-    # - number_input
+    - duration
+    # - intensity
 
 responses:
   utter_iamabot:
@@ -244,6 +274,8 @@ actions:
 - action_get_user_data
 - action_display_user_conditions
 - action_ask_has_symptom
+- action_ask_duration
+- action_ask_intensity
 - validate_symptom_form
 
 session_config:
