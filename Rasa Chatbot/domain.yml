@@ -46,14 +46,17 @@ slots:
 
   PERSON:
     type: text
-    influence_conversation: false
+    influence_conversation: true
     mappings:
     - type: from_entity
       entity: PERSON
+      conditions:
+        - active_loop: user_form
+          requested_slot: PERSON
 
   age:
     type: text
-    influence_conversation: false
+    influence_conversation: true
     mappings:
     - type: from_entity
       entity: age
@@ -118,18 +121,15 @@ slots:
       - active_loop: symptom_form
         requested_slot: has_symptom
 
-  duration:
-    type: float
-    min_value: 0
-    max_value: 7
-    initial_value: 0
+  day:
+    type: text
     influence_conversation: True
     mappings:
     - type: from_entity
       entity: day
       conditions:
       - active_loop: symptom_form
-        requested_slot: duration
+        requested_slot: day
 
   intensity:
     type: float
@@ -219,7 +219,7 @@ forms:
   symptom_form:
     required_slots:
     - has_symptom
-    - duration
+    - day
     # - intensity
 
 responses:
@@ -274,7 +274,7 @@ actions:
 - action_get_user_data
 - action_display_user_conditions
 - action_ask_has_symptom
-- action_ask_duration
+- action_ask_day
 - action_ask_intensity
 - validate_symptom_form
 

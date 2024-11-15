@@ -31,13 +31,11 @@ pipeline:
     analyzer: char_wb
   - name: DIETClassifier
     epochs: 100
+    ignore_entities: ["day", "age"]
     constrain_similarities: true
   - name: RegexEntityExtractor
     case_sensitive: False
-    entity:
-      - day
-    regex:
-      day: "\\b\\d+\\s?(day|days)?\\b"
+
   
   # - name: EntitySynonymMapper
   # - name: ResponseSelector

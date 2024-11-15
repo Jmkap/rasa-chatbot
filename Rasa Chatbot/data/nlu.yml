@@ -1,5 +1,13 @@
 version: "3.1"
 nlu:
+- regex: age
+  examples: |
+    - \b(?:[1-9]|[1-9][0-9]|1[0-1][0-9]|120)\b
+
+- regex: day
+  examples: |
+    - \b\d+\b
+
 - intent: greet
   examples: |
     - hey
@@ -66,12 +74,6 @@ nlu:
     - so so perfect
     - so good
     - so perfect
-- intent: bot_challenge
-  examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
 - intent: say_symptom
   examples: |
     - I feel [bloated](symptom)
@@ -141,16 +143,36 @@ nlu:
     - I'm [7](age)
     - Almost [60](age) years
     - age [20](age)
-    - [25](age)
     - [50](age) years
     - [43](age) yrs
-    - [15](age)
     - [22](age) years
     - [42](age) yrs
-    - [50](age)
     - [89](age) years
     - [90](age) yrs
-    - [54](age)
+    - [4](age) years
+    - [3](age) yrs
+    - [8](age) years
+    - [10](age) yrs
+    - [9](age) years
+    - [1](age) yr
+    - [1](age) year
+    - I am [25](age) years old
+    - I am [35](age) years
+    - I am [50](age) now
+    - I just turned [19](age)
+    - I am [45](age)
+    - I am about [60](age)
+    - I am [33](age) years of age
+    - I’ll be [27](age) soon
+    - [18](age) years of experience
+    - I’ve been [21](age) for a while now
+    - I am a [40](age)-year-old
+    - [32](age) years of life
+    - I am [25](age) years young
+    - I am turning [29](age) this year
+    - I am just a [23](age) year old
+    - [65](age) years and counting
+    
 - intent: say_days
   examples: |
     - It's been [28](day) days
@@ -161,14 +183,35 @@ nlu:
     - I was sick for [6](day) days
     - [4](day) day visit
     - [8](day) days long sickness
-    - [3](day)
     - [6](day) days
-    - [30](day)
     - [23](day) days
-    - [5](day)
     - [40](day) days
-    - [14](day)
     - [7](day) days
+    - [70](day) days
+    - [49](day) days
+    - [130](day) days
+    - [167](day) days
+    - [200](day) days
+    - [359](day) days
+    - [407](day) days
+    - [500](day) days
+    - It’s been [10](day) days
+    - It will last for [30](day) days
+    - I was there for [15](day) days
+    - The project will take [12](day) days
+    - It’s been [40](day) days already
+    - [5](day) day trip
+    - We’ll meet in [3](day) days
+    - I’ve had [14](day) days off
+    - I’m on a [20](day) day streak
+    - I’ve been feeling sick for [7](day) days
+    - It will take [8](day) days to finish
+    - I’ll be back in [25](day) days
+    - I’m staying for [30](day) days
+    - In [100](day) days, we will know
+    - I’ve been living here for [50](day) days
+    - [10](day) days vacation
+
 # - intent: provide_intensity
 #   examples: |
 #     - My pain level is [7](intensity)

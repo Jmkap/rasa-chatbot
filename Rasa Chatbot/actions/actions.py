@@ -480,9 +480,9 @@ class ActionAskHasSymptom (Action):
         dispatcher.utter_message(text="FAILURE")
         return []
     
-class ActionAskDuration(Action):
+class ActionAskDay(Action):
     def name(self) -> Text:
-        return "action_ask_duration"
+        return "action_ask_day"
 
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
@@ -561,7 +561,7 @@ class ValidateSymptomForm(FormValidationAction):
             dispatcher.utter_message(text=f"Skipping this cycle...")
             
             skip_cycle = False
-            return {"has_symptom" : None, "duration": None, "skip": skip_cycle}
+            return {"has_symptom" : None, "day": None, "skip": skip_cycle}
         
         # Initialize arrays
         if not user_symptoms:
@@ -587,14 +587,14 @@ class ValidateSymptomForm(FormValidationAction):
                 symptoms = [symptom for symptom in symptoms if symptom["name"] not in grouped_symptoms]
                 
                 if symptoms:
-                    return {"grouped_questions": [], "grouped_symptoms": [], "has_label" : slot_value, "possible_conditions" : conditions, "has_symptom" : None, "duration": None, 
+                    return {"grouped_questions": [], "grouped_symptoms": [], "has_label" : slot_value, "possible_conditions" : conditions, "has_symptom" : None, "day": None, 
                             "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms}
             # If there are remaining symptoms, 
             # return the user's answer (slot value), update asking_label and all other slots
             # has_symptom slot must be set to none so the form continues to loop.
             # this returns to AskHasSymptom and skips if not has_label part
             if symptoms:
-                return {"has_label" : slot_value, "asking_label" : False, "possible_conditions" : conditions, "has_symptom" : None, "duration": None, 
+                return {"has_label" : slot_value, "asking_label" : False, "possible_conditions" : conditions, "has_symptom" : None, "day": None, 
                         "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms}
         
         #Debug Code    
@@ -663,10 +663,10 @@ class ValidateSymptomForm(FormValidationAction):
         
         # Move to next slot, update everything
         dispatcher.utter_message(text=f"Exiting Validate Has Symptom")
-        return {"possible_conditions" : conditions, "has_symptom" : slot_value, "duration": None, "loop_counter": current_counter, 
+        return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "loop_counter": current_counter, 
                 "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration}
     
-    def validate_duration(
+    def validate_day(
         self,
         slot_value: any,
         dispatcher: CollectingDispatcher,
@@ -675,6 +675,8 @@ class ValidateSymptomForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         asking_duration = tracker.get_slot("asking_duration")
         asking_intensity = tracker.get_slot("asking_intensity")
+        symptoms = tracker.get_slot("unique_symptoms_kb")
+        user_symptoms = tracker.get_slot("user_symptoms")
         label = tracker.get_slot("label")
         
         # Debug
@@ -686,13 +688,16 @@ class ValidateSymptomForm(FormValidationAction):
                 asking_intensity = True
             else:
                 asking_intensity = False
-            return {"has_symptom": None, "duration": slot_value, "asking_intensity": asking_intensity}
+            
+            if symptoms:
+                return {"has_symptom": None, "day": slot_value, "asking_intensity": asking_intensity}
+            return {"has_symptom": True, "day": slot_value, "asking_intensity": asking_intensity}
         
         # Debug
         dispatcher.utter_message(text=f"Skipping VALIDATE DURATION")
         dispatcher.utter_message(text=f"If you still see this, something's wrong")
         
-        return {"has_symptom": None, "duration": -1}
+        return {"has_symptom": None, "day": -1}
     
     # def validate_intensity(
     #     self,
