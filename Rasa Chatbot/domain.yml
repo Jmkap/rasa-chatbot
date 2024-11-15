@@ -13,12 +13,12 @@ intents:
 - say_symptom
 - say_unwell
 - say_days
-# - provide_intensity
+- provide_intensity
 - test_symptom_form
 entities:
 - age
 - day
-# - intensity
+- intensity
 - symptom
 - PERSON
 - context
@@ -132,17 +132,14 @@ slots:
         requested_slot: day
 
   intensity:
-    type: float
-    min_value: 0
-    max_value: 10
-    initial_value: 0
+    type: text
     influence_conversation: True
-    mappings: []
-    # - type: from_entity
-    #   entity: intensity
-    #   # conditions:
-    #   # - active_loop: symptom_form
-    #   #   requested_slot: intensity
+    mappings:
+    - type: from_entity
+      entity: intensity
+      conditions:
+      - active_loop: symptom_form
+        requested_slot: intensity
         
   asking_label:
     type: bool
@@ -220,7 +217,7 @@ forms:
     required_slots:
     - has_symptom
     - day
-    # - intensity
+    - intensity
 
 responses:
   utter_iamabot:
