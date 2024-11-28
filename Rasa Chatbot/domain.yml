@@ -15,6 +15,10 @@ intents:
 - say_days
 - provide_intensity
 - test_symptom_form
+- ask_symptom_question
+- start_new_user
+- start_returning_user
+- set_user_info
 entities:
 - age
 - day
@@ -25,6 +29,12 @@ entities:
 - regular
 
 slots:
+  execute:
+    type: bool
+    initial_value: False
+    influence_conversation: True
+    mappings: []
+
   symptom:
     type: text
     influence_conversation: true
@@ -64,6 +74,22 @@ slots:
       - active_loop: user_form
         requested_slot: age
 
+  isMenopause:
+    type: bool
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: true
+      intent: affirm
+      conditions:
+      - active_loop: user_form
+        requested_slot: isMenopause
+    - type: from_intent
+      value: false
+      intent: deny
+      conditions:
+      - active_loop: user_form
+        requested_slot: isMenopause
 
   is_new_user:
     type: bool
@@ -104,9 +130,14 @@ slots:
     influence_conversation: true
     mappings: []
 
+  symptom_explanations:
+    type: list
+    influence_conversation: false
+    mappings: []
+
   has_symptom:
     type: bool
-    influence_conversation: True
+    influence_conversation: true
     mappings:
     - type: from_intent
       value: true
@@ -123,7 +154,7 @@ slots:
 
   day:
     type: text
-    influence_conversation: True
+    influence_conversation: true
     mappings:
     - type: from_entity
       entity: day
@@ -133,7 +164,7 @@ slots:
 
   intensity:
     type: text
-    influence_conversation: True
+    influence_conversation: true
     mappings:
     - type: from_entity
       entity: intensity
@@ -156,6 +187,12 @@ slots:
   asking_duration:
     type: bool
     initial_value: False
+    influence_conversation: true
+    mappings: []
+
+  first_ask:
+    type: bool
+    initial_value: True
     influence_conversation: true
     mappings: []
 
@@ -206,11 +243,17 @@ slots:
     type: list
     influence_conversation: false
     mappings: []
+  
+  intent:
+    type: text
+    influence_conversation: False
+    mappings: []
 
 forms:
   user_form:
     required_slots:
     - PERSON
+    - isMenopause
     - age
 
   symptom_form:
@@ -238,34 +281,26 @@ responses:
   utter_feelings:
   - text: How are you feeling today?
   
-  utter_confirmation:
-  - text: Understood! I just want to make sure this isn't a mistake. Are you sure you want to delete your symptom lists?
-  
-  utter_success_delete:
-  - text: I have renewed your symptom list. Tell me if there are any unusual symptoms you're feeling!
-  
-  utter_cancel_delete:
-  - text: Ah, so it was a misunderstanding. I cancelled deleting the list.
-  
   utter_scope:
-  - text: IMPORTANT! While I aspire to help you to the best of my ability, I cannot replace a doctor's diagnosis :(. If you feel that you are in need of urgent medical assistance please seek seek help from a healthcare professional immediately!
+  - text: IMPORTANT ⚠️ While I aspire to help you to the best of my ability, I cannot replace a doctor's diagnosis 😔. If you feel that you are in need of urgent medical assistance please seek seek help from a healthcare professional immediately. 🩺😊
   
   utter_ask_age:
   - text: To provide you with the best possible experience, could you please let me know your age? This helps me tailor my responses better to your needs.
   
-  utter_new:
-  - text: Hello! Is this your first time meeting me?
-  
   utter_ask_PERSON:
   - text: Nice to meet you! What's your name?
+
+  utter_ask_isMenopause:
+  - text: Are you currently in your menopause?
+
+  utter_default:
+  - text: I'm sorry, I didn't understand that. Can you rephrase?
+
 actions:
-- utter_new
 - action_consult_knowledge
 - action_say_symptom
-- utter_feelings
 - action_trigger_listen_new
 - action_submit_user_form
-- utter_scope
 - action_repeat_symptoms
 - action_say_disclaimer
 - action_get_user_data
@@ -274,7 +309,10 @@ actions:
 - action_ask_day
 - action_ask_intensity
 - validate_symptom_form
+- action_answer_symptom_question
+- action_set_user_info
+- action_clear_user_info
 
 session_config:
   session_expiration_time: 60
-  carry_over_slots_to_new_session: true
+  carry_over_slots_to_new_session: False

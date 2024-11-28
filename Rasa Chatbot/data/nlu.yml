@@ -6,8 +6,33 @@ nlu:
 
 - regex: day
   examples: |
-    - \b\d+\b
+    - \b(?:0|[1-9]\d*)\b
 
+- regex: intensity
+  examples: |
+    - \b(10|[0-9])\b
+
+- regex: question
+  examples: |
+    - \bwhat is\b
+    - \bwhat does\b
+    - \bwhat\'s\b
+    - \bWhat is\b
+    - \bWhat does\b
+    - \bWhat\'s\b
+    - \b(symptom|cause|meaning|Symptom|Cause|Meaning)\b
+
+- intent: set_user_info
+  examples: |
+    - /set_user_info
+    - set user info
+    - user info set
+
+- intent: start_returning_user
+  examples: |
+    - /start_returning_user
+    - returning user start
+    - start returning user
 - intent: greet
   examples: |
     - hey
@@ -97,6 +122,7 @@ nlu:
     - [nausea](symptom)
     - [acne](symptom)
     - [Acne](symptom)
+    - [Pain after Sex](symptom)
 - intent: repeat_symptoms
   examples: |
     - what are my symptoms again?
@@ -212,22 +238,82 @@ nlu:
     - I’ve been living here for [50](day) days
     - [10](day) days vacation
 
-# - intent: provide_intensity
-#   examples: |
-#     - My pain level is [7](intensity)
-#     - The intensity is [5](intensity)
-#     - I feel [3](intensity) out of 10
-#     - The intensity of my headache is [8](intensity)
-#     - It’s [6](intensity) today
-#     - Pain level: [10](intensity)
-#     - My headache is [4](intensity) today
-#     - Intensity: [2](intensity)
-#     - [2](intensity)
-#     - [1](intensity)
-#     - [0](intensity)
-#     - about [2](intensity)
-#     - [8](intensity)
-#     - [9](intensity)
+- intent: provide_intensity
+  examples: |
+    - My pain level is [7](intensity)
+    - The intensity is [5](intensity)
+    - I feel [3](intensity) out of 10
+    - The intensity of my headache is [8](intensity)
+    - It’s [6](intensity) today
+    - Pain level: [10](intensity)
+    - My headache is [4](intensity) today
+    - Intensity: [2](intensity)
+    - about [2](intensity)
+    - The pain scale is [9](intensity)
+    - I would rate it as [6](intensity)
+    - It’s a solid [7](intensity) today
+    - I think it's around [4](intensity)
+    - Definitely a [5](intensity) on the scale
+    - Probably a [3](intensity) this time
+    - I'd say [8](intensity) out of 10
+    - The pain is roughly [2](intensity)
+    - Currently, it's [6](intensity)
+    - It feels like a [5](intensity)
+    - Maybe [9](intensity), not sure
+    - I'd rank it [7](intensity)
+    - On a scale, it's [3](intensity)
+    - It's definitely [4](intensity) now
+    - I think the level is [10](intensity)
+    - The intensity measures [6](intensity)
+    - If I had to guess, it’s [8](intensity)
+    - Let’s say [7](intensity)
+    - I’d say it’s around [5](intensity)
+    - Could be [2](intensity), not much
+    - Around [3](intensity), I guess
+    - It’s like [9](intensity) right now
+    - I'd go with [4](intensity) today
+    - It feels around [1](intensity), very low
+    - Probably closer to [8](intensity) this time
+    - I'm feeling a [7](intensity) at the moment
+    - The pain's at [6](intensity) right now
+    - Maybe [10](intensity), it's very intense
+    - It's currently [5](intensity), manageable
+- intent: ask_symptom_question
+  examples: |
+    - What is this symptom?
+    - What does this symptom mean?
+    - Can you explain this symptom?
+    - What does it mean if I have this symptom?
+    - What is the cause of this symptom?
+    - Why do I have this symptom?
+    - Is this symptom serious?
+    - What can I do about this symptom?
+    - What does it mean to have this?
+    - Tell me about this symptom.
+    - Can you tell me more about this?
+    - Explain this symptom to me.
+    - What is happening with this symptom?
+    - What could this symptom indicate?
+    - What's headache?
+    - What is fever?
+    - Can you explain nausea?
+    - Why do I have dizziness?
+    - What causes fatigue?
+    - What does cough mean?
+    - Is chest pain serious?
+    - Can rash be dangerous?
+    - What can I do about stomach pain?
+    - Tell me about blurred vision.
+    - What is that?
+    - I don’t know what that is.
+    - Can you explain it to me?
+    - Why do I have this?
+    - Is this serious?
+    - What causes this?
+    - What does it mean to have this?
+    - Tell me more about it.
+    - Explain that to me.
+    - What’s wrong with me?
 - intent: say_name
   examples: |
     - My name is [Mark](PERSON)

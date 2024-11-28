@@ -2,17 +2,6 @@ version: "3.1"
 
 stories:
 
-- story: user asks for symptom
-  steps:
-  - intent: repeat_symptoms
-  - action: action_repeat_symptoms
-
-- story: display user info
-  steps:
-  - intent: ask_user_info
-  - action: action_get_user_data
-
-
 
 
 
