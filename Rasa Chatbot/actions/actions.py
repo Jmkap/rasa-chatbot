@@ -7,6 +7,8 @@
 
 # This is a simple example for a custom action which utters "Hello World!"
 import firebase_admin
+from math import ceil
+import os
 from firebase_admin import firestore, credentials, _apps, initialize_app
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
@@ -235,12 +237,18 @@ class ActionConsultKnowledge(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         
+        batch_size = 30
+        
         current_symptom = tracker.get_slot("current_symptom")
         symptom_explanations = tracker.get_slot("symptom_explanations")
         possible_conditions = tracker.get_slot("possible_conditions")
         # Use a service account.
+        
+        path_cwd = os.getcwd()
+        cred_path = os.path.join(path_cwd, "service account\knowledgebase.json")
+        
         if not _apps:
-            cred = credentials.Certificate("C:/Users/Jmkap/Desktop/ChatBot Development/Rasa Chatbot/service account/knowledgebase.json")
+            cred = credentials.Certificate(cred_path)
             initialize_app(cred)
         
         db = firestore.client()
@@ -257,15 +265,18 @@ class ActionConsultKnowledge(Action):
         
         conditions_ref = db.collection(u'Conditions')
         
-        query = conditions_ref.where(u'Symptoms', u'array_contains_any', symptom_list)
-        results = query.stream()
         
-        possible_conditions = []
-        for condition in results:
-            condition_data = condition.to_dict()
-            condition_data['name'] = condition.id
-            condition_data['score'] = 0
-            possible_conditions.append(condition_data)
+        for i in range(0, len(unique_symptom_names), batch_size):
+            batch = unique_symptom_names[i:i + batch_size]
+            query = conditions_ref.where(u'Symptoms', u'array_contains_any', symptom_list)
+            results = query.stream()
+        
+            possible_conditions = []
+            for condition in results:
+                condition_data = condition.to_dict()
+                condition_data['name'] = condition.id
+                condition_data['score'] = 0
+                possible_conditions.append(condition_data)
         
         # edit if probing now accounts for multiple symptoms
         current_symptom = user_symptoms.pop()
@@ -296,15 +307,20 @@ class ActionConsultKnowledge(Action):
             
         label_ref = db.collection(u'Label')
         unique_symptom_names = [symptom_data["name"] for symptom_data in unique_symptoms_kb]
-        query = label_ref.where(u'Related', u'array_contains_any', unique_symptom_names)
-        results = query.stream()
-
-        related_labels = []
 
         
-        for label in results:
-            label_data = label.to_dict()
-            label_data['name'] = label.id
+        batch_size = 30
+        related_labels = []
+
+        for i in range(0, len(unique_symptom_names), batch_size):
+            batch = unique_symptom_names[i:i + batch_size]
+            query = label_ref.where(u'Related', u'array_contains_any', batch)
+            results = query.stream()
+
+            for label in results:
+                label_data = label.to_dict()
+                label_data['name'] = label.id
+                related_labels.append(label_data)
             
             # Debug
             # if label.id == "Weight":
