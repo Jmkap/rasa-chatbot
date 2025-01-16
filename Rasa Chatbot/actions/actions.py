@@ -796,6 +796,7 @@ class ValidateSymptomForm(FormValidationAction):
                 if symptoms:
                     return {"grouped_questions": [], "grouped_symptoms": [], "has_label" : slot_value, "possible_conditions" : conditions, "has_symptom" : None, "day": None, 
                             "loop_counter" : current_counter, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "unique_symptoms_kb": symptoms, "execute": None}
+             
             # If there are remaining symptoms, 
             # return the user's answer (slot value), update asking_label and all other slots
             # has_symptom slot must be set to none so the form continues to loop.
@@ -953,7 +954,7 @@ class ValidateSymptomForm(FormValidationAction):
                     "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": False, "execute": None}
         
         return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": 0, "intensity": 0 , "loop_counter": current_counter, "unique_symptoms_kb": symptoms,
-                "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": False, "execute": None}
+                "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": True, "execute": None}
      
     def validate_day(
         self,
