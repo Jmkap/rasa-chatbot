@@ -157,28 +157,6 @@ class ActionSubmitUserInfo(Action):
         
         dispatcher.utter_message(json_message=user_data)
         
-        symptom_data = {
-            "control": "record_symptom",
-            "data": {
-                "symptomName": "Pain",
-                "duration": 30,
-                "intensity": 8
-            }
-        }
-        
-        dispatcher.utter_message(json_message=symptom_data)
-        
-        condition_data = {
-            "control": "record_condition",
-            "data": {
-                "conditionName": "Ostheoperosis",
-                "conditionScore": 90,
-                "lifeThreat": True
-            }
-        }
-        
-        dispatcher.utter_message(json_message=condition_data)
-        
         return [SlotSet("age", age), SlotSet("PERSON", name), SlotSet("isMenopause", isMenopause)]
 
 # FLAG IF CHATBOT LISTENING FOR AFFIRMATION
