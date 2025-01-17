@@ -6,7 +6,6 @@
 
 
 # This is a simple example for a custom action which utters "Hello World!"
-import firebase_admin
 from math import ceil
 import os
 from firebase_admin import firestore, credentials, _apps, initialize_app
@@ -412,7 +411,6 @@ class ActionDisplayUserCondition(Action):
         
         if user_conditions:
             sorted_conditions = sorted(user_conditions, key=lambda x: x["score"], reverse=False)
-            dispatcher.utter_message("\nThese are the conditions that best match them:")
             count = 1
             
             for count, condition in enumerate(sorted_conditions[:3], start=1):
@@ -438,7 +436,9 @@ class ActionDisplayUserCondition(Action):
                             "conditionScore": condition_confidence,
                             "lifeThreat": condition_life_threat
                         }
-                    } 
+                    }
+                    if count <= 1:
+                        dispatcher.utter_message("\nThese are the conditions that best match them:")
                     dispatcher.utter_message(json_message=condition_data)
                     dispatcher.utter_message(text=f"{count}. {condition_name}, \nConfidence: {condition_confidence}%, \nLife-Threatening: {condition_life_threat}")
                     count+=1
@@ -877,10 +877,12 @@ class ValidateSymptomForm(FormValidationAction):
 
                     # If a condition has a high enough score, and it's not an already diagnosed condition
                     # Display to the user progress so far.
-                    diagnosed_conditions_names = [cond['name'] for cond in diagnosed_conditions]
-                    if condition["score"] >= len(condition["Symptoms"])/2 and condition["name"] not in diagnosed_conditions_names:
-                        has_been_diagnosed = True
-                        diagnosed.append(condition)
+                    if condition["score"] >= len(condition["Symptoms"])/2:
+                        diagnosed_conditions_names = [cond['name'] for cond in diagnosed_conditions]
+                        if condition["name"] not in diagnosed_conditions_names:
+                            has_been_diagnosed = True
+                            diagnosed.append(condition)
+                            diagnosed_conditions.append(condition)
                     
                     #Debug Prints
                     # dispatcher.utter_message(text=f"\n\nCondition: {condition['name']}, Score: {condition['score']}\n")
@@ -898,23 +900,26 @@ class ValidateSymptomForm(FormValidationAction):
         # dispatcher.utter_message(text=f"-------------------------------------")
         
         # Display progress so far if there's a new diagnosis.
-        if has_been_diagnosed:
+        if has_been_diagnosed and not (diagnosed.count == 1 and diagnosed[0]["Life-Threat"]):
             dispatcher.utter_message(text="Your symptoms so far are:")
             count = 1
             for symptom in user_symptoms:
                 dispatcher.utter_message(text=f"{count}. {symptom}")
                 count += 1
-            dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
             count = 1
+            
             for condition in diagnosed:
                 condition_name = condition['name']
                 condition_score = condition['score']
                 threat = condition['Life-Threat']
                 confidence = condition_score/len(condition['Symptoms'])*100
-                dispatcher.utter_message(text=f"{count}. Name: {condition_name}\nConfidence: {confidence}%\nLife-Threatening: {threat}")
-                diagnosed_conditions.append(condition)
+                
+                if count <= 1:
+                    dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
+                
+                if not condition["Life-Threat"]:
+                    dispatcher.utter_message(text=f"{count}. Name: {condition_name}\nConfidence: {confidence}%\nLife-Threatening: {threat}")
                 count+=1
-            
             has_been_diagnosed = False
         
         # remove the current symptom from the symptom list to update the list and move on to the next symptom
