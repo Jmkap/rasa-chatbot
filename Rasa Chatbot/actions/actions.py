@@ -266,8 +266,8 @@ class ActionConsultKnowledge(Action):
         conditions_ref = db.collection(u'Conditions')
         
         
-        for i in range(0, len(unique_symptom_names), batch_size):
-            batch = unique_symptom_names[i:i + batch_size]
+        for i in range(0, len(symptom_list), batch_size):
+            batch = symptom_list[i:i + batch_size]
             query = conditions_ref.where(u'Symptoms', u'array_contains_any', symptom_list)
             results = query.stream()
         
