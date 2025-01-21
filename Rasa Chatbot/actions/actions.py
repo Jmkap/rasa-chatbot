@@ -12,7 +12,7 @@ from firebase_admin import firestore, credentials, _apps, initialize_app
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import SlotSet, SessionStarted, ActionExecuted, EventType, FollowupAction
+from rasa_sdk.events import SlotSet, SessionStarted, ActionExecuted, EventType, FollowupAction, AllSlotsReset
 from rasa_sdk import Tracker, FormValidationAction
 from rasa_sdk.types import DomainDict
 from datetime import datetime
@@ -431,7 +431,7 @@ class ActionDisplayUserCondition(Action):
             dispatcher.utter_message(text=f"Your combination of symptoms do not seem to lead to anything based on my limited knowledge.")
             dispatcher.utter_message(text=f"I would advise a visit to your trusted doctor if your symptoms persist, worsen, or are causing discomfort.")
         
-        return [SlotSet("unique_symptoms_kb", None), SlotSet("possible_conditions", None), SlotSet("user_conditions", None)]
+        return [AllSlotsReset()]
 
 
 
@@ -802,7 +802,7 @@ class ValidateSymptomForm(FormValidationAction):
             # if label == pain, ask intensity
             # else, no ask
             
-            if label.lower() == "pain":
+            if label.lower() == "pain" or label.lower() == "sex":
                 
                 # Debug
                 # dispatcher.utter_message(text=f"Label \"pain\" IS same as label \"{label}\"")
