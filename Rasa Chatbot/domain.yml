@@ -110,26 +110,31 @@ slots:
     influence_conversation: false
     mappings: []
 
+  # The user's symptoms
   user_symptoms:
     type: list
     influence_conversation: false
     mappings: []
 
+  # The user's conditions
   user_conditions:
     type: list
     influence_conversation: false
     mappings: []
 
+  # List of conditions that were listed as possible based on the initial symptom
   possible_conditions:
     type: list
     influence_conversation: false
     mappings: []
 
+  # All the unique symptoms that may be connected to the initial
   unique_symptoms_kb:
     type: list
     influence_conversation: true
     mappings: []
 
+  # List of symptom explanations
   symptom_explanations:
     type: list
     influence_conversation: false
@@ -224,21 +229,25 @@ slots:
     initial_value: 0
     mappings: []
 
+  # List of conditions that were diagnosed
   diagnosed_condition:
     type: list
     influence_conversation: false
     mappings: []
 
+  # List of labels that are related based on the initial condition
   related_labels:
     type: list
     influence_conversation: false
     mappings: []
   
+  # Questions that have been grouped based on label
   grouped_questions:
     type: list
     influence_conversation: false
     mappings: []
 
+  # Symptoms that have been grouped based on label
   grouped_symptoms:
     type: list
     influence_conversation: false

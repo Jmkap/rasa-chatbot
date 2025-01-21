@@ -429,9 +429,9 @@ class ActionDisplayUserCondition(Action):
         
         else:
             dispatcher.utter_message(text=f"Your combination of symptoms do not seem to lead to anything based on my limited knowledge.")
-            dispatcher.utter_message(text=f"I would advise a visit to your trusted doctor, there may be something happening that both you and I do not know about")
+            dispatcher.utter_message(text=f"I would advise a visit to your trusted doctor if your symptoms persist, worsen, or are causing discomfort.")
         
-        return [SlotSet("unique_symptoms_kb", None), SlotSet("possible_conditions", None)]
+        return [SlotSet("unique_symptoms_kb", None), SlotSet("possible_conditions", None), SlotSet("user_conditions", None)]
 
 
 
