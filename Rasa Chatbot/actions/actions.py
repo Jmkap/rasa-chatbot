@@ -388,7 +388,7 @@ class ActionDisplayUserCondition(Action):
                 count+=1
         
         if user_conditions:
-            sorted_conditions = sorted(user_conditions, key=lambda x: x["score"], reverse=False)
+            sorted_conditions = sorted(user_conditions, key=lambda x: x["score"], reverse=True)
             count = 1
             
             for count, condition in enumerate(sorted_conditions[:3], start=1):
