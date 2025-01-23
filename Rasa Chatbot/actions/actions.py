@@ -365,8 +365,7 @@ class ActionDisplayUserCondition(Action):
                     
                 })
         
-        dispatcher.utter_message("\nFinished impression phase.\n")
-        dispatcher.utter_message("To summarize:")
+        dispatcher.utter_message("\nAll Done! Here's my impression from our session.\n")
         dispatcher.utter_message("Based on your symptoms,")
         
         count = 1  
@@ -418,7 +417,7 @@ class ActionDisplayUserCondition(Action):
                     if count <= 1:
                         dispatcher.utter_message("\nThese are the conditions that best match them:")
                     dispatcher.utter_message(json_message=condition_data)
-                    dispatcher.utter_message(text=f"{count}. {condition_name}, \nConfidence: {condition_confidence}%, \nLife-Threatening: {condition_life_threat}")
+                    dispatcher.utter_message(text=f"{count}. {condition_name}")
                     count+=1
             
                 else:
@@ -430,6 +429,8 @@ class ActionDisplayUserCondition(Action):
         else:
             dispatcher.utter_message(text=f"Your combination of symptoms do not seem to lead to anything based on my limited knowledge.")
             dispatcher.utter_message(text=f"I would advise a visit to your trusted doctor if your symptoms persist, worsen, or are causing discomfort.")
+        
+        dispatcher.utter_message(text="Is there anything else that you might be feeling or experiencing?")
         
         return [AllSlotsReset()]
 
@@ -878,27 +879,29 @@ class ValidateSymptomForm(FormValidationAction):
         # dispatcher.utter_message(text=f"-------------------------------------")
         
         # Display progress so far if there's a new diagnosis.
-        if has_been_diagnosed and not (diagnosed.count == 1 and diagnosed[0]["Life-Threat"]):
-            dispatcher.utter_message(text="Your symptoms so far are:")
-            count = 1
-            for symptom in user_symptoms:
-                dispatcher.utter_message(text=f"{count}. {symptom}")
-                count += 1
-            count = 1
-            
-            for condition in diagnosed:
-                condition_name = condition['name']
-                condition_score = condition['score']
-                threat = condition['Life-Threat']
-                confidence = condition_score/len(condition['Symptoms'])*100
+        if has_been_diagnosed:
+            if len(diagnosed) > 1 or not diagnosed[0]["Life-Threat"]:
+                dispatcher.utter_message(text="Your symptoms so far are:")
+                count = 1
+                for symptom in user_symptoms:
+                    symptom_name = symptom["name"]
+                    dispatcher.utter_message(text=f"{count}. {symptom_name}")
+                    count += 1
+                count = 1
                 
-                if count <= 1:
-                    dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
-                
-                if not condition["Life-Threat"]:
-                    dispatcher.utter_message(text=f"{count}. Name: {condition_name}\nConfidence: {confidence}%\nLife-Threatening: {threat}")
-                count+=1
-            has_been_diagnosed = False
+                for condition in diagnosed:
+                    condition_name = condition['name']
+                    condition_score = condition['score']
+                    threat = condition['Life-Threat']
+                    confidence = condition_score/len(condition['Symptoms'])*100
+                    
+                    if count <= 1:
+                        dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
+                    
+                    if not condition["Life-Threat"]:
+                        dispatcher.utter_message(text=f"{count}. Name: {condition_name}")
+                    count+=1
+                has_been_diagnosed = False
         
         # remove the current symptom from the symptom list to update the list and move on to the next symptom
         # dispatcher.utter_message(text=f"The current symptom is: {current_symptom}")

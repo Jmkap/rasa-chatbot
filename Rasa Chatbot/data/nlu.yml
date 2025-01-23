@@ -122,6 +122,8 @@ nlu:
     - [Pain during a period](symptom)
     - I feel [Pain during a period](symptom)
     - I am having [Pain during a period](symptom)
+    - I'm having [Back pain](symptom).
+    - I'm experiencing [Back pain](symptom)
     - [Back Pain](symptom)
     - [Weakness](symptom)
     - [nausea](symptom)
