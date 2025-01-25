@@ -622,6 +622,8 @@ class ActionAskHasSymptom (Action):
             # Adjust for multiple initial symptoms if implemented
             symptom_explanations = tracker.get_slot("symptom_explanations")
             asked_symptom = user_symptoms[0]["name"]
+            symptom_obj = user_symptoms[0]
+            user_symptoms.clear()
             
             for label in related_labels:
                     if asked_symptom in label['Related']:
@@ -639,7 +641,7 @@ class ActionAskHasSymptom (Action):
             # Debug
             # dispatcher.utter_message(text=f"Current Symptom: {current_symptom}")
             
-            return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("asking_label", asking_label), 
+            return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("asking_label", asking_label), SlotSet("user_symptoms", user_symptoms),
                     SlotSet("current_symptom", current_symptom), SlotSet("label", current_label), SlotSet("execute", "has_symptom")]
         
         dispatcher.utter_message(text="FAILURE")
@@ -827,8 +829,7 @@ class ValidateSymptomForm(FormValidationAction):
             # debug
             # dispatcher.utter_message(text=f"Storing symptom to user_symptoms: {matching_symptom}...")
             
-            if not first_ask:
-                user_symptoms.append(matching_symptom)
+            user_symptoms.append(matching_symptom)
             
             # debug
             # dispatcher.utter_message(text=f"current list of user symptoms: {user_symptoms}")
@@ -892,8 +893,6 @@ class ValidateSymptomForm(FormValidationAction):
                 for condition in diagnosed:
                     condition_name = condition['name']
                     condition_score = condition['score']
-                    threat = condition['Life-Threat']
-                    confidence = condition_score/len(condition['Symptoms'])*100
                     
                     if count <= 1:
                         dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
