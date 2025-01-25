@@ -48,6 +48,18 @@ nlu:
     - goodmorning
     - goodevening
     - good afternoon
+
+
+# - intent: say_unwell
+#   examples: |
+#     - I am not feeling well
+#     - I am feeling unwell
+#     - I feel sick
+#     - I'm not feeling too good
+#     - I don't feel good
+#     - I'm sick
+#     - I am having problems
+
 - intent: goodbye
   examples: |
     - cu

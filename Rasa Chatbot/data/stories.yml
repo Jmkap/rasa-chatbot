@@ -1,7 +1,26 @@
 version: "3.1"
 
-stories:
+# stories:
+# - story: say assistance purpose  # name of the story - just for debugging
+#   steps:
+#   - intent: greet                         # user message with no entities
+#   - action: utter_ask_howcanhelp
+#   - intent: inform                        # user message with entities
+#     entities:
+#     - location: "rome"
+#     - price: "cheap"
+#   - action: utter_on_it                  # action that the bot should execute
+#   - action: utter_ask_cuisine
+#   - intent: inform
+#     entities:
+#     - cuisine: "spanish"
+#   - action: utter_ask_num_people
 
+# - story: user isn't feeling well
+#   steps:
+#   - intent: say_unwell                        
+#   - action: utter_feelings
+  
 
 
 

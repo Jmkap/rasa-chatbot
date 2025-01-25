@@ -430,7 +430,7 @@ class ActionDisplayUserCondition(Action):
             dispatcher.utter_message(text=f"Your combination of symptoms do not seem to lead to anything based on my limited knowledge.")
             dispatcher.utter_message(text=f"I would advise a visit to your trusted doctor if your symptoms persist, worsen, or are causing discomfort.")
         
-        dispatcher.utter_message(text="Is there anything else that you might be feeling or experiencing?")
+        dispatcher.utter_message(text="The session is complete! A PDF report is now available for your convenience. Please tap the download button on the upper right corner of the app to acquire it.")
         
         return [AllSlotsReset()]
 
@@ -1057,3 +1057,32 @@ class ActionTestForm (Action):
         dispatcher.utter_message(cond)
         
         return []
+
+class ActionAskNeedAssistance(Action):
+    def name(self) -> Text:
+        return "action_ask_need_assistance"
+    
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        dispatcher.utter_message(
+            response="utter_further_assist"
+        )
+
+class ActionSubmitRestart (Action):
+    def name(self) -> Text:
+        return "action_submit_restart"
+    
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        restart = tracker.get_slot("need_assistance")
+        
+        if (restart):
+            dispatcher.utter_message(
+                response="utter_feelings"
+            )
+        else:
+            dispatcher.utter_message(
+                response="utter_future_assist"
+            )

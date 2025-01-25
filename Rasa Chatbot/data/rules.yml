@@ -74,3 +74,13 @@ rules:
     - action: symptom_form
     - active_loop: null # indicates form is completed
     - action: action_display_user_conditions
+    - action: restart_form
+    - active_loop: restart_form
+
+- rule: close restart form
+  condition:
+  - active_loop: restart_form
+  steps:
+    - action: restart_form
+    - active_loop: null
+    - action: action_submit_restart

@@ -203,9 +203,25 @@ slots:
 
   has_label:
     type: bool
-    initial_value: false
     influence_conversation: True
     mappings: []
+
+  need_assistance:
+    type: bool
+    influence_conversation: True
+    mappings:
+    - type: from_intent
+      value: true
+      intent: affirm
+      conditions:
+      - active_loop: restart_form
+        requested_slot: need_assistance
+    - type: from_intent
+      value: false
+      intent: deny
+      conditions:
+      - active_loop: restart_form
+        requested_slot: need_assistance
   
   label:
     type: text
@@ -271,6 +287,10 @@ forms:
     - day
     - intensity
 
+  restart_form:
+    required_slots:
+    - need_assistance
+
 responses:
   utter_iamabot:
   - text: I am a bot, powered by Rasa.
@@ -286,6 +306,9 @@ responses:
 
   utter_assist:
   - text: I'm here to assist you in menstruation related concerns in any way I can!
+
+  utter_further_assist:
+  - text: "Do you require further assistance?"
   
   utter_feelings:
   - text: How are you feeling today?
@@ -302,6 +325,9 @@ responses:
   utter_ask_isMenopause:
   - text: Are you currently in your menopause?
 
+  utter_future_assist:
+  - text: Thank you for your time today! If you need assistance in the future, feel free to reach out and tell me how you're feeling. Have a great day!
+
   utter_default:
   - text: I'm sorry, I didn't understand that. Can you rephrase?
 
@@ -317,10 +343,12 @@ actions:
 - action_ask_has_symptom
 - action_ask_day
 - action_ask_intensity
+- action_ask_need_assistance
 - validate_symptom_form
 - action_answer_symptom_question
 - action_set_user_info
 - action_clear_user_info
+- action_submit_restart
 
 session_config:
   session_expiration_time: 60
