@@ -642,7 +642,7 @@ class ActionAskHasSymptom (Action):
             
             current_symptom = asked_symptom
             
-            dispatcher.utter_message(text=f"I want to confirm, can your current symptom ({asked_symptom}) be described as {explanation}?")
+            dispatcher.utter_message(text=f"I want to confirm, can your current symptom, {asked_symptom}, be described as {explanation}?")
             
             # Debug
             # dispatcher.utter_message(text=f"Current Symptom: {current_symptom}")
