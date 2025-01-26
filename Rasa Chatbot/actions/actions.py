@@ -1094,3 +1094,10 @@ class ActionSubmitRestart (Action):
             dispatcher.utter_message(
                 response="utter_future_assist"
             )
+            
+        create_new = {
+            "control": "create_new_session"
+        }
+        
+        dispatcher.utter_message(json_message=create_new)
+        return [AllSlotsReset()]
