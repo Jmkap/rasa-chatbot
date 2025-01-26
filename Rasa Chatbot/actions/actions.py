@@ -383,29 +383,35 @@ class ActionDisplayUserCondition(Action):
                 symptom_name = symptom["name"]
                 symptom_duration = symptom["duration"]
                 symptom_intensity = symptom["intensity"]
-                dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days, with intensity of {symptom_intensity} out of 10")
+                if int(symptom_intensity) >= 0:
+                    dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days, with intensity of {symptom_intensity} out of 10")
+                else:
+                    dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days.")
                 count+=1
         
         if user_conditions:
+            
+            # Calculate confidence
+            for condition in user_conditions:
+                condition_score = condition['score']
+                length = len(condition['Symptoms'])
+                
+                condition_confidence = condition_score/length*100
+        
+                if condition_confidence >= 100:
+                    condition_confidence = 99
+                condition['score'] = condition_confidence
+                
+            # Sort by confidence
             sorted_conditions = sorted(user_conditions, key=lambda x: x["score"], reverse=True)
             count = 1
             
             for count, condition in enumerate(sorted_conditions[:3], start=1):
                 condition_name = condition['name']
-                condition_score = condition['score']
+                condition_confidence = condition['score']
                 condition_life_threat = condition['threat']
             
                 if not condition_life_threat:
-                    length = len(condition['Symptoms'])
-                    
-                    # Debug
-                    # dispatcher.utter_message(text=f"The condition has a score of {condition_score}/{length}")
-                    
-                    condition_confidence = condition_score/length*100
-            
-                    if condition_confidence >= 100:
-                        condition_confidence = 99
-                        
                     condition_data = {
                         "control": "record_condition",
                         "data": {
