@@ -738,7 +738,10 @@ class ValidateSymptomForm(FormValidationAction):
                     visual = symp_explanation["Visual"]
                 
                 if visual:
-                    dispatcher.utter_message(image=visual)
+                    dispatcher.utter_message(
+                        text="Here's an image for your reference:",
+                        image=visual
+                    )
                 dispatcher.utter_message(text=f"When experiencing {current_symptom}, it typically means {explanation}")
                 dispatcher.utter_message(text=f"Would you say you're experiencing this symptom?")
                 return {"has_symptom": None, "skip": True, "execute": None}
