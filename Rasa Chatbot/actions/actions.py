@@ -36,18 +36,16 @@ class ActionSaySymptom(Action):
         if not context:
             dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
             new_symptom_list.append({"symptom": symptom, "context": "NA"})
+            # Create a new session
+            create_new = {
+                "control": "create_new_session"
+            }
+            
+            dispatcher.utter_message(json_message=create_new)
             return [SlotSet("symptom", None), SlotSet("context", None), SlotSet("symptom_context_list", new_symptom_list)]
         
         dispatcher.utter_message(text=f"Your symptom is: {symptom}, specifically with {context}. Let me see how I can help!")
         new_symptom_list.append({"symptom": symptom, "context": context})
-        
-        # Create a new session
-        create_new = {
-            "control": "create_new_session"
-        }
-        
-        dispatcher.utter_message(json_message=create_new)
-        
         
         return [SlotSet("symptom", None), SlotSet("context", None), SlotSet("symptom_context_list", new_symptom_list)]
 
