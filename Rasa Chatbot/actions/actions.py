@@ -8,6 +8,7 @@
 # This is a simple example for a custom action which utters "Hello World!"
 from math import ceil
 import os
+import random
 from firebase_admin import firestore, credentials, _apps, initialize_app
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
@@ -259,6 +260,7 @@ class ActionConsultKnowledge(Action):
                 condition_data['name'] = condition.id
                 condition_data['score'] = 0
                 possible_conditions.append(condition_data)
+                
         
         # edit if probing now accounts for multiple symptoms
         current_symptom = user_symptoms.pop()
@@ -906,13 +908,27 @@ class ValidateSymptomForm(FormValidationAction):
                 
                 for condition in diagnosed:
                     condition_name = condition['name']
-                    condition_score = condition['score']
+                    
+                    # get explanation
+                    if isinstance(condition["Explanation"], list):
+                        random_explanation = random.choice(condition["Explanation"])
+                    elif isinstance(condition["Explanation"], str):
+                        random_explanation = condition["Explanation"]
+                    else:
+                        random_explanation = "No explanation available."
                     
                     if count <= 1:
                         dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
                     
                     if not condition["Life-Threat"]:
                         dispatcher.utter_message(text=f"{count}. Name: {condition_name}")
+                    
+                    # Display explanations and references
+                    dispatcher.utter_message(text=random_explanation)
+                    
+                    references = "\n".join(condition["References"])
+                    dispatcher.utter_message(text=f"Reference/s:\n{references}")
+                    
                     count+=1
                 has_been_diagnosed = False
         
