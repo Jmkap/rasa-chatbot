@@ -18,6 +18,119 @@ from rasa_sdk import Tracker, FormValidationAction
 from rasa_sdk.types import DomainDict
 from datetime import datetime
 
+# Use a service account.
+#CHANGE        
+path_cwd = os.getcwd()
+cred_path = os.path.join(path_cwd, "service account\knowledgebase.json")
+        
+if not _apps:
+    cred = credentials.Certificate(cred_path)
+    initialize_app(cred)        
+db = firestore.client()
+
+#CHANGE (ADD NEW ACTIONS)
+class AskForUserformPerson(Action):
+    def name(self)-> Text:
+        return "action_ask_user_form_PERSON"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        doc_ref = db.collection("Dialogue").document("PERSON")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="Hello! What would you like me to call you?")
+        else:
+            dispatcher.utter_message(text="Hi! What would you like me to call you?")
+        return []
+class AskForUserformAge(Action):
+    def name(self)-> Text:
+        return "action_ask_user_form_age"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        doc_ref = db.collection("Dialogue").document("age")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="How old are you?")
+        else:
+            dispatcher.utter_message(text="What is your age? This will help me tailor the process better for your needs.")
+        return []
+
+class AskForUserformMeno(Action):
+    def name(self)-> Text:
+        return "action_ask_user_form_isMenopause"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        doc_ref = db.collection("Dialogue").document("isMenopause")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="Have you reached menopause?")
+        else:
+            dispatcher.utter_message(text="Have you reached menopause?")
+        return []
+class Action_Scope(Action):
+    def name(self):
+        return "action_scope"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+
+        #Fetch responses from Firestore
+        doc_ref = db.collection("Dialogue").document("scope")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="Please seek a professional as this is a chatbot meant to help your journey along menstrual health")
+        else:
+            dispatcher.utter_message(text="Please seek a professional as this is a chatbot meant to help your journey along menstrual health")
+
+        return []
+    
+class Action_Feelings(Action):
+    def name(self):
+        return "action_feelings"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+
+        # Fetch responses from Firestore
+        doc_ref = db.collection("Dialogue").document("feelings")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="How are you feeling?")
+        else:
+            dispatcher.utter_message(text="Are there any symptoms you have been noticing recently?")
+
+        return []
+
 # UTTER SYMPTOM
 class ActionSaySymptom(Action):
 
@@ -225,16 +338,7 @@ class ActionConsultKnowledge(Action):
         current_symptom = tracker.get_slot("current_symptom")
         symptom_explanations = tracker.get_slot("symptom_explanations")
         possible_conditions = tracker.get_slot("possible_conditions")
-        # Use a service account.
         
-        path_cwd = os.getcwd()
-        cred_path = os.path.join(path_cwd, "service account\knowledgebase.json")
-        
-        if not _apps:
-            cred = credentials.Certificate(cred_path)
-            initialize_app(cred)
-        
-        db = firestore.client()
         
         symptom_dicts = tracker.get_slot("symptom_context_list")
         if symptom_dicts:
