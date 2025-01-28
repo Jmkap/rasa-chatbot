@@ -330,8 +330,8 @@ responses:
   #utter_ask_isMenopause:
   #- text: Are you currently in your menopause?
 
-  utter_future_assist:
-  - text: Thank you for your time today! If you need assistance in the future, feel free to reach out and tell me how you're feeling. Have a great day!
+  #utter_future_assist:
+  #- text: Thank you for your time today! If you need assistance in the future, feel free to reach out and tell me how you're feeling. Have a great day!
 
   utter_default:
   - text: I'm sorry, I didn't understand that. Can you rephrase?
