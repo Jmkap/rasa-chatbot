@@ -145,6 +145,12 @@ slots:
     influence_conversation: false
     mappings: []
 
+  knows_symptom:
+    type: bool
+    initial_value: true
+    influence_conversation: True
+    mappings: []
+
   has_symptom:
     type: bool
     influence_conversation: true

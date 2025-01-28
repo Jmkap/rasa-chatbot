@@ -35,7 +35,8 @@ class ActionSaySymptom(Action):
         new_symptom_list = list(symptom_list)
         
         if not context:
-            dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
+            if symptom:
+                dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
             new_symptom_list.append({"symptom": symptom, "context": "NA"})
             # Create a new session
             create_new = {
@@ -247,20 +248,25 @@ class ActionConsultKnowledge(Action):
         # dispatcher.utter_message(text=f"Current user symptoms: {symptom_list}")
         
         conditions_ref = db.collection(u'Conditions')
+        possible_conditions = []
         
+        has_results = False
         
         for i in range(0, len(symptom_list), batch_size):
             batch = symptom_list[i:i + batch_size]
             query = conditions_ref.where(u'Symptoms', u'array_contains_any', symptom_list)
             results = query.stream()
         
-            possible_conditions = []
             for condition in results:
+                has_results = True
                 condition_data = condition.to_dict()
                 condition_data['name'] = condition.id
                 condition_data['score'] = 0
                 possible_conditions.append(condition_data)
                 
+        if not has_results:
+            dispatcher.utter_message(text=f"Sorry, it seems that I do not have the necessary knowledge about this symptom. Can you tell me a different one?")
+            return [FollowupAction("action_listen")]
         
         # edit if probing now accounts for multiple symptoms
         current_symptom = user_symptoms.pop()
@@ -282,6 +288,7 @@ class ActionConsultKnowledge(Action):
                         user_symptoms.append(symptom_data)
                         
                     unique_symptoms_kb.append(symptom_data)
+            
         
         # Debug code
         # dispatcher.utter_message(f"Possible conditions:")
@@ -358,6 +365,7 @@ class ActionDisplayUserCondition(Action):
         possible_conditions = tracker.get_slot("possible_conditions")
         symptoms = tracker.get_slot("user_symptoms")
         danger = False
+        
         
         if not user_conditions:
             user_conditions = []
@@ -475,10 +483,13 @@ class ActionAskHasSymptom (Action):
         label_question = ""
         current_symptom = tracker.get_slot("current_symptom")
         
+        
         # Debug
         # dispatcher.utter_message(text=f"Entered AskHasSymptom")
         # dispatcher.utter_message(text=f"User Symptoms: {user_symptoms}")
         # dispatcher.utter_message(text=f"Asking for the first time?: {first_ask}")
+        
+        
         
         slot = tracker.get_slot("requested_slot")
         if symptoms and not (first_ask and user_symptoms):
@@ -740,6 +751,7 @@ class ValidateSymptomForm(FormValidationAction):
         has_label = tracker.get_slot("has_label")
         label = tracker.get_slot("label")
         first_ask = tracker.get_slot("first_ask")
+        
         
         if isinstance(slot_value, str):
             if slot_value == "ask_symptom_question":
