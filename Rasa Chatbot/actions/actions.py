@@ -150,13 +150,14 @@ class ActionSaySymptom(Action):
         new_symptom_list = list(symptom_list)
         
         if not context:
-            doc_ref = db.collection("Dialogue").document("symp_noCon")
-            doc = doc_ref.get()
-            response_list = doc.to_dict().get("terms", [])
-            symp = random.choice(response_list)
-            fsymp = symp.format(symptom=symptom) if "{symptom}" in symp else symp
-            dispatcher.utter_message(text=fsymp)
-            #dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
+            if symptom:
+                doc_ref = db.collection("Dialogue").document("symp_noCon")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                symp = random.choice(response_list)
+                fsymp = symp.format(symptom=symptom) if "{symptom}" in symp else symp
+                dispatcher.utter_message(text=fsymp)
+                #dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
             new_symptom_list.append({"symptom": symptom, "context": "NA"})
             # Create a new session
             create_new = {
@@ -424,21 +425,28 @@ class ActionConsultKnowledge(Action):
         # dispatcher.utter_message(text=f"Current user symptoms: {symptom_list}")
         
         conditions_ref = db.collection(u'Conditions')
-        
+        possible_conditions = []
+        has_results = False
         
         for i in range(0, len(symptom_list), batch_size):
             batch = symptom_list[i:i + batch_size]
             query = conditions_ref.where(u'Symptoms', u'array_contains_any', symptom_list)
             results = query.stream()
         
-            possible_conditions = []
+            
             for condition in results:
+                has_results = True
                 condition_data = condition.to_dict()
                 condition_data['name'] = condition.id
                 condition_data['score'] = 0
                 possible_conditions.append(condition_data)
-                
-        
+        if not has_results:
+            doc_ref = db.collection("Dialogue").document("noid")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            no_id = random.choice(response_list)
+            dispatcher.utter_message(text=no_id)      
+            return [FollowupAction("action_listen")]
         # edit if probing now accounts for multiple symptoms
         current_symptom = user_symptoms.pop()
         user_symptoms = []
