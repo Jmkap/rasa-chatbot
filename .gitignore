@@ -3,3 +3,5 @@ rasa/
 myenv/
 .rasa/
 .env
+*.pyc
+__pycache__/
