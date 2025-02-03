@@ -171,9 +171,8 @@ class ActionSaySymptom(Action):
         doc = doc_ref.get()
         response_list = doc.to_dict().get("terms", [])
         symp = random.choice(response_list)
-        fsymp1 = symp.format(symptom=symptom) if "{symptom}" in symp else symp
-        fsymp2 = fsymp1.format(context=context) if "{context}" in fsymp1 else fsymp1
-        dispatcher.utter_message(text=fsymp2)        
+        fsymp = symp.format(symptom=symptom,context=context) if "{symptom}" in symp and "{context}" in symp else symp
+        dispatcher.utter_message(text=fsymp)        
         #dispatcher.utter_message(text=f"Your symptom is: {symptom}, specifically with {context}. Let me see how I can help!") #CHANGED
         new_symptom_list.append({"symptom": symptom, "context": context})
         
@@ -375,10 +374,8 @@ class ActionGetUserData(Action):
             doc = doc_ref.get()
             response_list = doc.to_dict().get("terms", [])
             na_age = random.choice(response_list)
-            fna1= na_age.format(name=name) if "{name}" in na_age else na_age
-            fna2= fna1.format(age=age) if "{age}" in fna1 else fna1
-            fna3= fna2.format(new=new) if "{new}" in fna2 else fna2
-            dispatcher.utter_message(text=fna3)
+            fna1= na_age.format(name=name,age=age,new=new) if "{name}" in na_age and "{age}" in na_age and "{new}" in na_age else na_age
+            dispatcher.utter_message(text=fna1)
             #dispatcher.utter_message(text=f"User: {name}\nAge: {age}\nNew User?: {new}") #CHANGED
         else:
             doc_ref = db.collection("Dialogue").document("no_name_age")
@@ -891,9 +888,8 @@ class ActionAskHasSymptom (Action):
             doc = doc_ref.get()
             response_list = doc.to_dict().get("terms", [])
             con1 = random.choice(response_list)
-            fcon1=con1.format(asked_symptom=asked_symptom) if "{asked_symptom}" in con1 else con1
-            fcon2=fcon1.format(explanation=explanation) if "{explanation}" in fcon1 else fcon1
-            dispatcher.utter_message(text=fcon2)
+            fcon1=con1.format(asked_symptom=asked_symptom,explanation=explanation) if "{asked_symptom}" in con1 and "{explanation}" in con1  else con1
+            dispatcher.utter_message(text=fcon1)
             #dispatcher.utter_message(text=f"I want to confirm, can your current symptom, {asked_symptom}, be described as {explanation}?") #CHANGED
             
             # Debug
@@ -1023,9 +1019,8 @@ class ValidateSymptomForm(FormValidationAction):
                 doc = doc_ref.get()
                 response_list = doc.to_dict().get("terms", [])
                 wex = random.choice(response_list)
-                fwex1=wex.format(current_symptom=current_symptom) if "{current_symptom}" in wex else wex
-                fwex2=fwex1.format(explanation=explanation) if "{explanation}" in fwex1 else fwex1
-                dispatcher.utter_message(text=fwex2)
+                fwex1=wex.format(current_symptom=current_symptom,explanation=explanation) if "{current_symptom}" in wex and "{explanation}" in wex else wex
+                dispatcher.utter_message(text=fwex1)
                 #dispatcher.utter_message(text=f"When experiencing {current_symptom}, it typically means {explanation}") #CHANGED
                 doc_ref = db.collection("Dialogue").document("when_ex2")
                 doc = doc_ref.get()
