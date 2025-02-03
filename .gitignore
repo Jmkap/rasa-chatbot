@@ -3,3 +3,6 @@ rasa/
 myenv/
 .rasa/
 .env
+*.pyc
+__pycache__/
+/Rasa Chatbot/models

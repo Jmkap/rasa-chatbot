@@ -142,6 +142,21 @@ nlu:
     - [acne](symptom)
     - [Acne](symptom)
     - [Pain after Sex](symptom)
+    - I'm feeling [fatigue](symptom)
+    - I am [Fatigue](symptom)
+    - I have been having [Abnormal Hair Growth](symptom)
+    - I have been experiencing [Abnormal Hair Growth](symptom)
+    - I've been experiencing [Pain during defecation](symptom)
+    - I have [Pain during urination](symptom)
+    - I feel like I have [Tender Breasts](symptom)
+    - I've been feeling [Pain right before period](symptom)
+    - I have [Pain right before period](symptom)
+    - I'm seeing [Skin Tags](symptom)
+    - I'm experiencing [Skin Tags](symptom)
+    - I've seeing [Thinning Hair](symptom)
+    - I'm experiencing [Thinning Hair](symptom)
+
+
 - intent: repeat_symptoms
   examples: |
     - what are my symptoms again?

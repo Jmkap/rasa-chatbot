@@ -426,6 +426,7 @@ class ActionConsultKnowledge(Action):
         
         conditions_ref = db.collection(u'Conditions')
         possible_conditions = []
+        
         has_results = False
         
         for i in range(0, len(symptom_list), batch_size):
@@ -433,7 +434,6 @@ class ActionConsultKnowledge(Action):
             query = conditions_ref.where(u'Symptoms', u'array_contains_any', symptom_list)
             results = query.stream()
         
-            
             for condition in results:
                 has_results = True
                 condition_data = condition.to_dict()
@@ -467,6 +467,7 @@ class ActionConsultKnowledge(Action):
                         user_symptoms.append(symptom_data)
                         
                     unique_symptoms_kb.append(symptom_data)
+            
         
         # Debug code
         # dispatcher.utter_message(f"Possible conditions:")
@@ -544,6 +545,7 @@ class ActionDisplayUserCondition(Action):
         possible_conditions = tracker.get_slot("possible_conditions")
         symptoms = tracker.get_slot("user_symptoms")
         danger = False
+        
         
         if not user_conditions:
             user_conditions = []
@@ -697,10 +699,13 @@ class ActionAskHasSymptom (Action):
         label_question = ""
         current_symptom = tracker.get_slot("current_symptom")
         
+        
         # Debug
         # dispatcher.utter_message(text=f"Entered AskHasSymptom")
         # dispatcher.utter_message(text=f"User Symptoms: {user_symptoms}")
         # dispatcher.utter_message(text=f"Asking for the first time?: {first_ask}")
+        
+        
         
         slot = tracker.get_slot("requested_slot")
         if symptoms and not (first_ask and user_symptoms):
@@ -990,6 +995,7 @@ class ValidateSymptomForm(FormValidationAction):
         has_label = tracker.get_slot("has_label")
         label = tracker.get_slot("label")
         first_ask = tracker.get_slot("first_ask")
+        
         
         if isinstance(slot_value, str):
             if slot_value == "ask_symptom_question":
