@@ -1409,24 +1409,52 @@ class ActionAskNeedAssistance(Action): #CHANGED
 class ActionSubmitRestart (Action):
     def name(self) -> Text:
         return "action_submit_restart"
-    
+    def get_random_response(self, response_key: str) -> str:
+        
+        doc_ref = db.collection("Dialogue").document(response_key)
+        doc = doc_ref.get()
+
+        if doc.exists:
+            terms = doc.to_dict().get("terms", [])
+            if terms:
+                return random.choice(terms)
+
+        # Fallback response if Firestore document or terms are missing
+        return "Sorry, I couldn't find a suitable response."
+
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         restart = tracker.get_slot("need_assistance")
-        if (restart):
-            Action_Feelings
+        response_key = "feelings" if restart else "futher_assist"
+        message = self.get_random_response(response_key)
+        dispatcher.utter_message(text=message)
+        
+        return [AllSlotsReset()]
+    
+   # def run(
+    #    self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    #) -> List[EventType]:
+    #    restart = tracker.get_slot("need_assistance")
+     #   if (restart):
+     #       dispatcher.utter_message(
+      #          action="action_feelings"
+       #     ) 
+            #Action_Feelings(Action)
 
         #if (restart):
         #    dispatcher.utter_message(
         #        response="utter_feelings"
         #    ) #CHANGED
 
-        else:
-            ActionAskNeedAssistance
+     #   else:
+      #     dispatcher.utter_message(
+       #         action="action_ask_need_assistance"
+        #    ) #CHANGED
+            #ActionAskNeedAssistance(Action)
         #else:
         #    dispatcher.utter_message(
         #        response="utter_future_assist"
         #    ) #CHANGED
 
-        return [AllSlotsReset()]
+       # return [AllSlotsReset()]
