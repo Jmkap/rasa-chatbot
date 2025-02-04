@@ -1426,7 +1426,7 @@ class ActionSubmitRestart (Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         restart = tracker.get_slot("need_assistance")
-        response_key = "feelings" if restart else "futher_assist"
+        response_key = "feelings" if restart else "future"
         message = self.get_random_response(response_key)
         dispatcher.utter_message(text=message)
         
