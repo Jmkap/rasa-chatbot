@@ -294,7 +294,7 @@ class ActionSubmitUserInfo(Action):
         doc = doc_ref.get()
         response_list = doc.to_dict().get("terms", [])
         meno1 = random.choice(response_list)
-        fmeno1 = meno1.format(name=name) if "{name}" in meno1 else meno1
+        fmeno1 = meno1.format(username=name) if "{username}" in meno1 else meno1
 
         doc_ref = db.collection("Dialogue").document("greetings 2")
         doc = doc_ref.get()
