@@ -13,7 +13,7 @@ rules:
   steps:
     - intent: set_user_info
     - action: action_set_user_info
-    - action: utter_feelings
+    - action: action_feelings #utter_feelings CHANGED
 
 # - rule: Greet new users
 #   condition:
@@ -49,7 +49,7 @@ rules:
     - slot_was_set:
       - requested_slot: null
     # The actions we want to run when the form is submitted.
-    - action: utter_scope
+    - action: action_scope #utter_scope CHANGED
     - action: action_submit_user_form
     - slot_was_set:
       - age: 25
@@ -57,7 +57,7 @@ rules:
       - PERSON: Gandhi
     - slot_was_set:
       - isMenopause: False
-    - action: utter_feelings
+    - action: action_feelings #utter_feelings #CHANGED
 
 - rule: user says symptom
   steps:

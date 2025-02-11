@@ -18,7 +18,122 @@ from rasa_sdk import Tracker, FormValidationAction
 from rasa_sdk.types import DomainDict
 from datetime import datetime
 
-# UTTER SYMPTOM
+# Use a service account.
+#CHANGED MOVED PATH        
+path_cwd = os.getcwd()
+cred_path = os.path.join(path_cwd, "service account\knowledgebase.json")
+        
+if not _apps:
+    cred = credentials.Certificate(cred_path)
+    initialize_app(cred)        
+db = firestore.client()
+
+#CHANGED (ADD NEW ACTIONS)
+class AskForUserformPerson(Action):
+    def name(self)-> Text:
+        return "action_ask_user_form_PERSON"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        doc_ref = db.collection("Dialogue").document("PERSON")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="Hello! What would you like me to call you?")
+        else:
+            dispatcher.utter_message(text="Hi! What would you like me to call you?")
+        return []
+#CHANGED (ADD NEW ACTIONS)
+class AskForUserformAge(Action):
+    def name(self)-> Text:
+        return "action_ask_user_form_age"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        doc_ref = db.collection("Dialogue").document("age")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="How old are you?")
+        else:
+            dispatcher.utter_message(text="What is your age? This will help me tailor the process better for your needs.")
+        return []
+#CHANGED (ADD NEW ACTIONS)
+class AskForUserformMeno(Action):
+    def name(self)-> Text:
+        return "action_ask_user_form_isMenopause"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        doc_ref = db.collection("Dialogue").document("isMenopause")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="Have you reached menopause?")
+        else:
+            dispatcher.utter_message(text="Have you reached menopause?")
+        return []
+#CHANGED (ADD NEW ACTIONS)
+class Action_Scope(Action):
+    def name(self):
+        return "action_scope"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+
+        #Fetch responses from Firestore
+        doc_ref = db.collection("Dialogue").document("scope")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="Please seek a professional as this is a chatbot meant to help your journey along menstrual health")
+        else:
+            dispatcher.utter_message(text="Please seek a professional as this is a chatbot meant to help your journey along menstrual health")
+
+        return []
+#CHANGED (ADD NEW ACTIONS)   
+class Action_Feelings(Action):
+    def name(self):
+        return "action_feelings"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+
+        # Fetch responses from Firestore
+        doc_ref = db.collection("Dialogue").document("feelings")
+        doc = doc_ref.get()
+
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="How are you feeling?")
+        else:
+            dispatcher.utter_message(text="Are there any symptoms you have been noticing recently?")
+
+        return []
+
+# UTTER SYMPTOM #CHANGED
 class ActionSaySymptom(Action):
 
     def name(self) -> Text:
@@ -36,7 +151,13 @@ class ActionSaySymptom(Action):
         
         if not context:
             if symptom:
-                dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
+                doc_ref = db.collection("Dialogue").document("symp_noCon")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                symp = random.choice(response_list)
+                fsymp = symp.format(symptom=symptom) if "{symptom}" in symp else symp
+                dispatcher.utter_message(text=fsymp)
+                #dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
             new_symptom_list.append({"symptom": symptom, "context": "NA"})
             # Create a new session
             create_new = {
@@ -46,7 +167,13 @@ class ActionSaySymptom(Action):
             dispatcher.utter_message(json_message=create_new)
             return [SlotSet("symptom", None), SlotSet("context", None), SlotSet("symptom_context_list", new_symptom_list)]
         
-        dispatcher.utter_message(text=f"Your symptom is: {symptom}, specifically with {context}. Let me see how I can help!")
+        doc_ref = db.collection("Dialogue").document("symp_withCon")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        symp = random.choice(response_list)
+        fsymp = symp.format(symptom=symptom,context=context) if "{symptom}" in symp and "{context}" in symp else symp
+        dispatcher.utter_message(text=fsymp)        
+        #dispatcher.utter_message(text=f"Your symptom is: {symptom}, specifically with {context}. Let me see how I can help!") #CHANGED
         new_symptom_list.append({"symptom": symptom, "context": context})
         
         return [SlotSet("symptom", None), SlotSet("context", None), SlotSet("symptom_context_list", new_symptom_list)]
@@ -79,6 +206,7 @@ class ActionSaySymptom(Action):
         
 #         return []
 
+#CHANGED
 class ActionSetUserInfo(Action):
     def name(self) -> Text:
         return "action_set_user_info"
@@ -111,8 +239,22 @@ class ActionSetUserInfo(Action):
         # Respond to the user
         dispatcher.utter_message(text=f"{greeting}!")
         if isMenopause:
-            dispatcher.utter_message(text=f"Just a friendly reminder, {username}☝️. I am designed to provide impressions and insights primarily for people who have not yet entered menopause. 🙏")
-            dispatcher.utter_message(text=f"If your concerns are still present, I would advise seeking a medical professional directly and immediately. 🩺🙂")
+            doc_ref = db.collection("Dialogue").document("meno_reminder1")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            meno1 = random.choice(response_list)
+
+            doc_ref = db.collection("Dialogue").document("meno_reminder2")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            meno2 = random.choice(response_list)
+            # Respond to the user
+            formatted_meno1 = meno1.format(username=username) if "{username}" in meno1 else meno1
+            formatted_meno2 = meno2.format(username=username) if "{username}" in meno2 else meno2
+            #dispatcher.utter_message(text=f"Just a friendly reminder, {username}☝️. I am designed to provide impressions and insights primarily for people who have not yet entered menopause. 🙏")
+            #dispatcher.utter_message(text=f"If your concerns are still present, I would advise seeking a medical professional directly and immediately. 🩺🙂")
+            dispatcher.utter_message(text=formatted_meno1)#CHANGED
+            dispatcher.utter_message(text=formatted_meno2) #CHANGED
 
         return [
             SlotSet("PERSON", username),
@@ -135,6 +277,7 @@ class ActionClearUserInfo(Action):
 
 
 # SET THE USER'S AGE TO A SLOT
+#CHANGED
 class ActionSubmitUserInfo(Action):
 
     def name(self) -> Text:
@@ -147,11 +290,23 @@ class ActionSubmitUserInfo(Action):
         age = tracker.get_slot("age")
         name = tracker.get_slot("PERSON")
         isMenopause = tracker.get_slot("isMenopause")
-        
+        doc_ref = db.collection("Dialogue").document("meno_reminder1")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        meno1 = random.choice(response_list)
+        fmeno1 = meno1.format(username=name) if "{username}" in meno1 else meno1
+
+        doc_ref = db.collection("Dialogue").document("greetings 2")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        greet = random.choice(response_list)
+        fgreet= greet.format(name=name) if "{name}" in greet else greet
+
         if isMenopause:
-            dispatcher.utter_message(text=f"Also, {name}👋, I want you to know that I am designed to provide impressions and insights primarily for people who have not yet entered menopause. 🤔")
-        
-        dispatcher.utter_message(text=f"Nice to meet you, {name}")
+            dispatcher.utter_message(text=fmeno1) #CHANGED
+            #dispatcher.utter_message(text=f"Also, {name}👋, I want you to know that I am designed to provide impressions and insights primarily for people who have not yet entered menopause. 🤔")
+        dispatcher.utter_message(text=fgreet) #CHANGED
+        #dispatcher.utter_message(text=f"Nice to meet you, {name}")
         
         user_data = {
             "control": "record_user_info",
@@ -184,6 +339,7 @@ class ActionSubmitUserInfo(Action):
         
 
 # Test function to see user data stored in chatbot
+#CHANGED
 class ActionGetUserData(Action):
 
     def name(self) -> Text:
@@ -199,16 +355,43 @@ class ActionGetUserData(Action):
         asking = tracker.get_slot("asked_new")
         
         if not name:
-            dispatcher.utter_message(text="Sorry, it seems that I have not stored your name")
+            doc_ref = db.collection("Dialogue").document("no_name")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            no_n = random.choice(response_list) 
+            dispatcher.utter_message(text=no_n) 
+            #dispatcher.utter_message(text="Sorry, it seems that I have not stored your name") #CHANGED
         if not age:
-            dispatcher.utter_message(text="Sorry, it seems that I do not have your age")
+            doc_ref = db.collection("Dialogue").document("no_age")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            no_a = random.choice(response_list) 
+            dispatcher.utter_message(text=no_a) 
+            #dispatcher.utter_message(text="Sorry, it seems that I do not have your age") #CHANGED
         
         if age and name:
-            dispatcher.utter_message(text=f"User: {name}\nAge: {age}\nNew User?: {new}")
+            doc_ref = db.collection("Dialogue").document("name_age")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            na_age = random.choice(response_list)
+            fna1= na_age.format(name=name,age=age,new=new) if "{name}" in na_age and "{age}" in na_age and "{new}" in na_age else na_age
+            dispatcher.utter_message(text=fna1)
+            #dispatcher.utter_message(text=f"User: {name}\nAge: {age}\nNew User?: {new}") #CHANGED
         else:
-            dispatcher.utter_message(text=f"Missing Age or Name\nNew User?: {new}.")
-            
-        dispatcher.utter_message(text=f"Asking If New?: {asking}")
+            doc_ref = db.collection("Dialogue").document("no_name_age")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            no_na_age = random.choice(response_list)
+            fna1= no_na_age.format(new=new) if "{new}" in no_na_age else no_na_age
+            dispatcher.utter_message(text=fna1)
+            #dispatcher.utter_message(text=f"Missing Age or Name\nNew User?: {new}.")#CHANGED
+        doc_ref = db.collection("Dialogue").document("asking")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        askin = random.choice(response_list)
+        fask= askin.format(asking=asking) if "{asking}" in askin else askin
+        dispatcher.utter_message(text=fask)    
+        #dispatcher.utter_message(text=f"Asking If New?: {asking}")#CHANGED
         
         return []
     
@@ -226,16 +409,7 @@ class ActionConsultKnowledge(Action):
         current_symptom = tracker.get_slot("current_symptom")
         symptom_explanations = tracker.get_slot("symptom_explanations")
         possible_conditions = tracker.get_slot("possible_conditions")
-        # Use a service account.
         
-        path_cwd = os.getcwd()
-        cred_path = os.path.join(path_cwd, "service account\knowledgebase.json")
-        
-        if not _apps:
-            cred = credentials.Certificate(cred_path)
-            initialize_app(cred)
-        
-        db = firestore.client()
         
         symptom_dicts = tracker.get_slot("symptom_context_list")
         if symptom_dicts:
@@ -263,11 +437,13 @@ class ActionConsultKnowledge(Action):
                 condition_data['name'] = condition.id
                 condition_data['score'] = 0
                 possible_conditions.append(condition_data)
-                
         if not has_results:
-            dispatcher.utter_message(text=f"Sorry, it seems that I do not have the necessary knowledge about this symptom. Can you tell me a different one?")
+            doc_ref = db.collection("Dialogue").document("noid")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            no_id = random.choice(response_list)
+            dispatcher.utter_message(text=no_id)      
             return [FollowupAction("action_listen")]
-        
         # edit if probing now accounts for multiple symptoms
         current_symptom = user_symptoms.pop()
         user_symptoms = []
@@ -353,6 +529,7 @@ class ActionConsultKnowledge(Action):
         #    dispatcher.utter_message(text=f"{condition['name']}")
         
 # Display the possible conditions a user has
+#CHANGED
 class ActionDisplayUserCondition(Action):
     def name(self) -> str:
         return "action_display_user_conditions"
@@ -379,9 +556,20 @@ class ActionDisplayUserCondition(Action):
                     "Symptoms" : condition['Symptoms'],
                     
                 })
-        
-        dispatcher.utter_message("\nAll Done! Here's my impression from our session.\n")
-        dispatcher.utter_message("Based on your symptoms,")
+        doc_ref = db.collection("Dialogue").document("Fin_imp1")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        fin1 = random.choice(response_list)
+ 
+        doc_ref = db.collection("Dialogue").document("Fin_imp3")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        fin3 = random.choice(response_list)
+
+        dispatcher.utter_message(text="\n"+fin1+"\n") 
+        dispatcher.utter_message(text=fin3)
+        #dispatcher.utter_message("\nAll Done! Here's my impression from our session.\n") #CHANGED
+        #dispatcher.utter_message("Based on your symptoms,") #CHANGED
         
         count = 1  
         if symptoms:
@@ -436,7 +624,12 @@ class ActionDisplayUserCondition(Action):
                         }
                     }
                     if count <= 1:
-                        dispatcher.utter_message("\nThese are the conditions that best match them:")
+                        doc_ref = db.collection("Dialogue").document("match")
+                        doc = doc_ref.get()
+                        response_list = doc.to_dict().get("terms", [])
+                        mat = random.choice(response_list)
+                        dispatcher.utter_message(text=mat)
+                        #dispatcher.utter_message("\nThese are the conditions that best match them:") #CHANGED
                     dispatcher.utter_message(json_message=condition_data)
                     dispatcher.utter_message(text=f"{count}. {condition_name}")
                     count+=1
@@ -445,20 +638,40 @@ class ActionDisplayUserCondition(Action):
                     danger = True
             
             if danger:
-                dispatcher.utter_message(text=f"Your combination of symptoms seem peculiar. It might be best to consult with your trusted doctor as soon as you can.")
+                doc_ref = db.collection("Dialogue").document("not_known_danger")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                nknown = random.choice(response_list)
+                dispatcher.utter_message(text=nknown)
+                #dispatcher.utter_message(text=f"Your combination of symptoms seem peculiar. It might be best to consult with your trusted doctor as soon as you can.") #CHANGED
         
         else:
-            dispatcher.utter_message(text=f"Your combination of symptoms do not seem to lead to anything based on my limited knowledge.")
-            dispatcher.utter_message(text=f"I would advise a visit to your trusted doctor if your symptoms persist, worsen, or are causing discomfort.")
-        
-        dispatcher.utter_message(text="The session is complete! A PDF report is now available for your convenience. Please tap the download button on the upper right corner of the app to acquire it.")
-        
+            doc_ref = db.collection("Dialogue").document("not_known1")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            nknown = random.choice(response_list)
+            dispatcher.utter_message(text=nknown)
+            #dispatcher.utter_message(text=f"Your combination of symptoms do not seem to lead to anything based on my limited knowledge.")#CHANGED
+            doc_ref = db.collection("Dialogue").document("not_known2")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            nknown2 = random.choice(response_list)
+            dispatcher.utter_message(text=nknown2)
+            #dispatcher.utter_message(text=f"I would advise a visit to your trusted doctor if your symptoms persist, worsen, or are causing discomfort.")#CHANGED
+        doc_ref = db.collection("Dialogue").document("complete")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        compl = random.choice(response_list)
+        dispatcher.utter_message(text=compl)
+        #dispatcher.utter_message(text="The session is complete! A PDF report is now available for your convenience. Please tap the download button on the upper right corner of the app to acquire it.")
+        #CHANGED
         return [AllSlotsReset()]
 
 
 
 
 # Asks the User if has symptom
+#CHANGED
 class ActionAskHasSymptom (Action):
     def name(self) -> Text:
         return "action_ask_has_symptom"
@@ -634,10 +847,22 @@ class ActionAskHasSymptom (Action):
                 dispatcher.utter_message(text=f"{question}")
                 return [SlotSet("unique_symptoms_kb", symptoms), SlotSet("grouped_questions", grouped_questions), SlotSet("grouped_symptoms", grouped_symptoms), SlotSet("first_ask", first_ask), 
                         SlotSet("related_labels", related_labels), SlotSet("asking_label", asking_label), SlotSet("current_symptom", current_symptom), SlotSet("label", current_label), SlotSet("execute", "has_symptom")]
-            
-            dispatcher.utter_message(text=f"Symptom has no label! Contact administration for this!")
+            doc_ref = db.collection("Dialogue").document("no_label")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            nol = random.choice(response_list)
+            dispatcher.utter_message(text=nol)
+            #dispatcher.utter_message(text=f"Symptom has no label! Contact administration for this!") #CHANGED
+
             symptom_name = symptoms[counter]["name"]
-            dispatcher.utter_message(text=f"Have you experienced {symptom_name}")
+
+            doc_ref = db.collection("Dialogue").document("experience")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            exp = random.choice(response_list)
+            fexp=exp.format(symptom_name=symptom_name) if "{symptom_name}" in exp else exp
+            dispatcher.utter_message(text=fexp)
+            #dispatcher.utter_message(text=f"Have you experienced {symptom_name}") #CHANGED
             return [SlotSet("unique_symptoms_kb", symptoms)]
         
         if symptoms:
@@ -659,8 +884,13 @@ class ActionAskHasSymptom (Action):
                                None)
             
             current_symptom = asked_symptom
-            
-            dispatcher.utter_message(text=f"I want to confirm, can your current symptom, {asked_symptom}, be described as {explanation}?")
+            doc_ref = db.collection("Dialogue").document("confirm")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            con1 = random.choice(response_list)
+            fcon1=con1.format(asked_symptom=asked_symptom,explanation=explanation) if "{asked_symptom}" in con1 and "{explanation}" in con1  else con1
+            dispatcher.utter_message(text=fcon1)
+            #dispatcher.utter_message(text=f"I want to confirm, can your current symptom, {asked_symptom}, be described as {explanation}?") #CHANGED
             
             # Debug
             # dispatcher.utter_message(text=f"Current Symptom: {current_symptom}")
@@ -670,7 +900,7 @@ class ActionAskHasSymptom (Action):
         
         dispatcher.utter_message(text="FAILURE")
         return []
-    
+#CHANGED    
 class ActionAskDay(Action):
     def name(self) -> Text:
         return "action_ask_day"
@@ -683,13 +913,18 @@ class ActionAskDay(Action):
         # dispatcher.utter_message(text=f"Entered ASK DURATION")
         
         # Execute action
-        dispatcher.utter_message(text=f"Including today, for how many days have you been experiencing this symptom?")
+        doc_ref = db.collection("Dialogue").document("Days")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        day = random.choice(response_list)
+        dispatcher.utter_message(text=day)
+        #dispatcher.utter_message(text=f"Including today, for how many days have you been experiencing this symptom?") #CHANGED
         
         # Debug
         # dispatcher.utter_message(text=f"Exiting ASK DURATION")
         
         return[]
-    
+#CHANGED    
 class ActionAskIntensity(Action):
     def name(self) -> Text:
         return "action_ask_intensity"
@@ -702,7 +937,12 @@ class ActionAskIntensity(Action):
         # dispatcher.utter_message(text=f"Entered ASK INTENSITY")
         
         # Execute action
-        dispatcher.utter_message(text=f"On a scale of 0-10 (0 is no pain), how intense is the pain?")
+        doc_ref = db.collection("Dialogue").document("Intense")
+        doc = doc_ref.get()
+        response_list = doc.to_dict().get("terms", [])
+        intense = random.choice(response_list)
+        dispatcher.utter_message(text=intense)
+        #dispatcher.utter_message(text=f"On a scale of 0-10 (0 is no pain), how intense is the pain?") #CHANGED
         
         # Debug
         # dispatcher.utter_message(text=f"Exiting ASK INTENSITY")
@@ -727,7 +967,7 @@ class ValidateSymptomForm(FormValidationAction):
             else:
                 has_symptom = intent    
             return {"has_symptom": has_symptom}
-    
+    #CHANGED
     def validate_has_symptom(
         self,
         slot_value: any,
@@ -763,15 +1003,39 @@ class ValidateSymptomForm(FormValidationAction):
                     visual = symp_explanation["Visual"]
                 
                 if visual:
+                    doc_ref = db.collection("Dialogue").document("image")
+                    doc = doc_ref.get()
+                    response_list = doc.to_dict().get("terms", [])
+                    ima = random.choice(response_list)
                     dispatcher.utter_message(
-                        text="Here's an image for your reference:",
+                        text=ima,
                         image=visual
                     )
-                dispatcher.utter_message(text=f"When experiencing {current_symptom}, it typically means {explanation}")
-                dispatcher.utter_message(text=f"Would you say you're experiencing this symptom?")
+                    #dispatcher.utter_message(
+                    #    text="Here's an image for your reference:",
+                    #    image=visual
+                    #) #CHANGED
+                doc_ref = db.collection("Dialogue").document("when_ex1")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                wex = random.choice(response_list)
+                fwex1=wex.format(current_symptom=current_symptom,explanation=explanation) if "{current_symptom}" in wex and "{explanation}" in wex else wex
+                dispatcher.utter_message(text=fwex1)
+                #dispatcher.utter_message(text=f"When experiencing {current_symptom}, it typically means {explanation}") #CHANGED
+                doc_ref = db.collection("Dialogue").document("when_ex2")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                wex2 = random.choice(response_list)
+                dispatcher.utter_message(text=wex2)
+                #dispatcher.utter_message(text=f"Would you say you're experiencing this symptom?")#CHANGED
                 return {"has_symptom": None, "skip": True, "execute": None}
             else:
-                dispatcher.utter_message(text=f"That went over my head—could you try rephrasing? I’m here to explain the symptoms as well, so feel free to ask about that!")
+                doc_ref = db.collection("Dialogue").document("unsure")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                unsure = random.choice(response_list)
+                dispatcher.utter_message(text=unsure)
+                #dispatcher.utter_message(text=f"That went over my head—could you try rephrasing? I’m here to explain the symptoms as well, so feel free to ask about that!")#CHANGED
             return {"has_symptom": None, "skip": True, "execute": None}
         
         # dispatcher.utter_message(text=f"Entered validate symptom")
@@ -895,8 +1159,13 @@ class ValidateSymptomForm(FormValidationAction):
                     #Debug Prints
                     # dispatcher.utter_message(text=f"\n\nCondition: {condition['name']}, Score: {condition['score']}\n")
                     # dispatcher.utter_message(text=f"{diagnosed}\n\n")
-            else:
-                dispatcher.utter_message(text="Currently, no conditions match your symptoms.")
+            else: 
+                doc_ref = db.collection("Dialogue").document("no_symp_match")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                no_symp_m = random.choice(response_list)
+                dispatcher.utter_message(text=no_symp_m)
+                #dispatcher.utter_message(text="Currently, no conditions match your symptoms.") #CHANGED
         
         if not slot_value and first_ask:
             # Assuming one symptom only
@@ -910,7 +1179,12 @@ class ValidateSymptomForm(FormValidationAction):
         # Display progress so far if there's a new diagnosis.
         if has_been_diagnosed:
             if len(diagnosed) > 1 or not diagnosed[0]["Life-Threat"]:
-                dispatcher.utter_message(text="Your symptoms so far are:")
+                doc_ref = db.collection("Dialogue").document("symp_sofar")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                sympsofar = random.choice(response_list)
+                dispatcher.utter_message(text=sympsofar)
+                #dispatcher.utter_message(text="Your symptoms so far are:") #CHANGED
                 count = 1
                 for symptom in user_symptoms:
                     symptom_name = symptom["name"]
@@ -930,7 +1204,13 @@ class ValidateSymptomForm(FormValidationAction):
                         random_explanation = "No explanation available."
                     
                     if count <= 1:
-                        dispatcher.utter_message(text="\nYour current symptoms match the following conditions:")
+                        doc_ref = db.collection("Dialogue").document("curr_match")
+                        doc = doc_ref.get()
+                        response_list = doc.to_dict().get("terms", [])
+                        curr_match = random.choice(response_list)
+                        curr_match= "\n"+curr_match
+                        dispatcher.utter_message(text=curr_match)
+                        #dispatcher.utter_message(text="\nYour current symptoms match the following conditions:") #CHANGED
                     
                     if not condition["Life-Threat"]:
                         dispatcher.utter_message(text=f"{count}. Name: {condition_name}")
@@ -1099,33 +1379,82 @@ class ActionTestForm (Action):
         
         return []
 
-class ActionAskNeedAssistance(Action):
+class ActionAskNeedAssistance(Action): #CHANGED
     def name(self) -> Text:
         return "action_ask_need_assistance"
     
-    def run(
-        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
-    ) -> List[EventType]:
-        dispatcher.utter_message(
-            response="utter_further_assist"
-        )
+    #def run(
+    #    self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    #) -> List[EventType]:
+    #    dispatcher.utter_message(
+    #        response="utter_further_assist"
+    #    ) #CHANGED
+    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+
+        #Fetch responses from Firestore
+        doc_ref = db.collection("Dialogue").document("futher_assist")
+        doc = doc_ref.get()
+        if doc.exists:
+            response_list = doc.to_dict().get("terms", [])
+            if response_list:
+                chosen_response = random.choice(response_list)  # Pick a random response
+                dispatcher.utter_message(text=chosen_response)
+            else:
+                dispatcher.utter_message(text="Do you require further assistance?")
+        else:
+            dispatcher.utter_message(text="Do you require further assistance?")
+
+        return []
 
 class ActionSubmitRestart (Action):
     def name(self) -> Text:
         return "action_submit_restart"
-    
+    def get_random_response(self, response_key: str) -> str:
+        
+        doc_ref = db.collection("Dialogue").document(response_key)
+        doc = doc_ref.get()
+
+        if doc.exists:
+            terms = doc.to_dict().get("terms", [])
+            if terms:
+                return random.choice(terms)
+
+        # Fallback response if Firestore document or terms are missing
+        return "Sorry, I couldn't find a suitable response."
+
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         restart = tracker.get_slot("need_assistance")
+        response_key = "feelings" if restart else "future"
+        message = self.get_random_response(response_key)
+        dispatcher.utter_message(text=message)
         
-        if (restart):
-            dispatcher.utter_message(
-                response="utter_feelings"
-            )
-        else:
-            dispatcher.utter_message(
-                response="utter_future_assist"
-            )
-
         return [AllSlotsReset()]
+    
+   # def run(
+    #    self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    #) -> List[EventType]:
+    #    restart = tracker.get_slot("need_assistance")
+     #   if (restart):
+     #       dispatcher.utter_message(
+      #          action="action_feelings"
+       #     ) 
+            #Action_Feelings(Action)
+
+        #if (restart):
+        #    dispatcher.utter_message(
+        #        response="utter_feelings"
+        #    ) #CHANGED
+
+     #   else:
+      #     dispatcher.utter_message(
+       #         action="action_ask_need_assistance"
+        #    ) #CHANGED
+            #ActionAskNeedAssistance(Action)
+        #else:
+        #    dispatcher.utter_message(
+        #        response="utter_future_assist"
+        #    ) #CHANGED
+
+       # return [AllSlotsReset()]

@@ -6,3 +6,4 @@ myenv/
 *.pyc
 __pycache__/
 /Rasa Chatbot/models
+thor/
