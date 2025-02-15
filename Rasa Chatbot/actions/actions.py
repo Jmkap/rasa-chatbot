@@ -89,9 +89,9 @@ class AskForUserformMeno(Action):
             dispatcher.utter_message(text="Have you reached menopause?")
         return []
 #CHANGED (ADD NEW ACTIONS)
-class Action_Scope(Action):
+class ActionAskAgreeTerms(Action):
     def name(self):
-        return "action_scope"
+        return "action_ask_agree_terms"
 
     def run(self, dispatcher: CollectingDispatcher, tracker, domain):
 
@@ -110,6 +110,23 @@ class Action_Scope(Action):
             dispatcher.utter_message(text="Please seek a professional as this is a chatbot meant to help your journey along menstrual health")
 
         return []
+    
+class ValidateDisclaimerForm(Action):
+    def name(self):
+        return "validate_disclaimer_form"
+    
+    def run (
+        self,
+        slot_value: any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        
+        if slot_value:
+            return {"agree_terms", slot_value}
+        return {"agree_terms", None}
+
 #CHANGED (ADD NEW ACTIONS)   
 class Action_Feelings(Action):
     def name(self):
@@ -665,6 +682,7 @@ class ActionDisplayUserCondition(Action):
         dispatcher.utter_message(text=compl)
         #dispatcher.utter_message(text="The session is complete! A PDF report is now available for your convenience. Please tap the download button on the upper right corner of the app to acquire it.")
         #CHANGED
+        dispatcher.utter_message(text=f"This is an important reminder that this is NOT a diagnosis and that I am NOT a doctor. If you're experiencing any symptoms that worry you, please consult your doctor.")
         return [AllSlotsReset()]
 
 
@@ -1103,15 +1121,19 @@ class ValidateSymptomForm(FormValidationAction):
                 # dispatcher.utter_message(text=f"Label \"pain\" IS same as label \"{label}\"")
             
                 asking_intensity = True
-            else:
+                asking_duration = True
+            elif label.lower() == "weight" or label.lower() == "infertility":
                 
                 # Debug
                 # dispatcher.utter_message(text=f"Label \"pain\" is NOT same as label \"{label}\"")
                 
                 asking_intensity = False
-    
-            # Ask duration since user said yes
-            asking_duration = True
+                asking_duration = False
+
+            else:
+                # Ask duration since user said yes
+                asking_duration = True
+                asking_intensity = False
             
             # Append the current symptom being asked to user's symptoms
             # dispatcher.utter_message(text=f"Here now! The current symptom is: {current_symptom}")
