@@ -1269,6 +1269,7 @@ class ValidateSymptomForm(FormValidationAction):
         # Move to next slot, update everything
         if slot_value:
             # If not asking for intensity, set proceed to askday, set intensity to a value
+            
             if not asking_intensity:
                 
                 # Debug
@@ -1279,9 +1280,10 @@ class ValidateSymptomForm(FormValidationAction):
             # if asking for intensity, proceed as normal
             # Debug
             # dispatcher.utter_message(text=f"Proceeding to ask for intensity")
+            
             if not asking_duration:
                 
-                return {"possible_conditions" : conditions, "has_symptom" : None, "day": -1, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
+                return {"possible_conditions" : conditions, "has_symptom" : None, "day": "-1", "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
                         "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
             
             return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": None ,"loop_counter": current_counter, "unique_symptoms_kb": symptoms,
