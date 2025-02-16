@@ -286,7 +286,7 @@ slots:
     mappings: []
 
   agree_terms:
-    type: boolean
+    type: bool
     influence_conversation: False
     mappings:
     - type: from_intent

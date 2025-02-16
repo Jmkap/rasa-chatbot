@@ -49,6 +49,27 @@ nlu:
     - goodevening
     - good afternoon
 
+- intent: not_known
+  examples: |
+    - I dont know
+    - Im not sure
+    - I don't know
+    - idk
+    - Not sure
+    - unknown
+    - I dnt knw
+    - can't remember
+    - I can't remember
+    - I frgot
+    - I forgot
+    - I'm unsure
+    - unsure
+    - Im not certain
+    - no idea
+    - I have no idea
+    - I don't have a clue
+    - no clue
+
 
 # - intent: say_unwell
 #   examples: |
