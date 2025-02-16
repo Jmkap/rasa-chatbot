@@ -89,11 +89,13 @@ class AskForUserformMeno(Action):
             dispatcher.utter_message(text="Have you reached menopause?")
         return []
 #CHANGED (ADD NEW ACTIONS)
-class ActionAskAgreeTerms(Action):
-    def name(self):
-        return "action_ask_agree_terms"
-
-    def run(self, dispatcher: CollectingDispatcher, tracker, domain):
+class ActionAskTerms (Action):
+    def name(self) -> Text:
+        return "action_ask_terms"
+    
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
 
         #Fetch responses from Firestore
         doc_ref = db.collection("Dialogue").document("scope")
@@ -109,23 +111,26 @@ class ActionAskAgreeTerms(Action):
         else:
             dispatcher.utter_message(text="Please seek a professional as this is a chatbot meant to help your journey along menstrual health")
 
+        dispatcher.utter_message(text=f"Do you acknowledge that I am not a doctor or a medical professional and that my impressions must not be treated as a diagnosis?")
+        
         return []
     
-class ValidateDisclaimerForm(Action):
+class ValidateDisclaimerForm(FormValidationAction):
     def name(self):
         return "validate_disclaimer_form"
     
-    def run (
+    def validate_terms(
         self,
-        slot_value: any,
+        slot_value: Any,
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        
         if slot_value:
-            return {"agree_terms", slot_value}
-        return {"agree_terms", None}
+            return {"terms": slot_value}
+        
+        dispatcher.utter_message(text="I am very sorry, but I cannot proceed with a session unless you agree to these terms :(")
+        return {"terms": None}
 
 #CHANGED (ADD NEW ACTIONS)   
 class Action_Feelings(Action):
@@ -985,6 +990,7 @@ class ValidateSymptomForm(FormValidationAction):
             else:
                 has_symptom = intent    
             return {"has_symptom": has_symptom}
+    
     #CHANGED
     def validate_has_symptom(
         self,
@@ -1267,12 +1273,15 @@ class ValidateSymptomForm(FormValidationAction):
                 # Debug
                 # dispatcher.utter_message(text=f"Skipping ask for intensity")
                 
-                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
+                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": -1, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
                         "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
             # if asking for intensity, proceed as normal
-            
             # Debug
             # dispatcher.utter_message(text=f"Proceeding to ask for intensity")
+            if not asking_duration:
+                
+                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": -1, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
+                        "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
             
             return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": None ,"loop_counter": current_counter, "unique_symptoms_kb": symptoms,
                     "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "asking_intensity": asking_intensity,  "first_ask": False, "execute": None}
@@ -1297,15 +1306,37 @@ class ValidateSymptomForm(FormValidationAction):
         symptoms = tracker.get_slot("unique_symptoms_kb")
         user_symptoms = tracker.get_slot("user_symptoms")
         current_symptom = tracker.get_slot("current_symptom")
+        has_symptom = tracker.get_slot("has_symptom")
+        intent = tracker.get_intent_of_latest_message()
         
-        
-        
+        dispatcher.utter_message(text=f"the current intent is: {intent}")
+
         # Debug
         # dispatcher.utter_message(text=f"Entered VALIDATE DURATION")
         # dispatcher.utter_message(text=f"User answered: {slot_value}")
         # dispatcher.utter_message(text=f"Ask for intensity?: {asking_intensity}")
         # dispatcher.utter_message(text=f"Intensity: {intensity}")
         # dispatcher.utter_message(text=f"Exiting VALIDATE DURATION")
+        
+        if intent == "not_known":    
+            for symptom in user_symptoms:
+                if symptom["name"] == current_symptom:
+                    
+                    # Update the 'duration' key for the matching symptom
+                    symptom["duration"] = "-1"
+                    break
+            
+            if asking_intensity:
+                return {"day": slot_value, "asking_intensity": asking_intensity, 
+                        "asking_duration": False, "user_symptoms": user_symptoms}
+            if symptoms:
+                # if not empty,
+                # set has_symptom to None,
+                # allowing the form to continue back to asking symptoms
+                return {"has_symptom": None, "day": slot_value, "asking_intensity": asking_intensity, 
+                        "asking_duration": False, "user_symptoms": user_symptoms}
+            return {"has_symptom": True, "day": slot_value, "asking_intensity": asking_intensity, 
+            "asking_duration": False, "user_symptoms": user_symptoms}
         
         # TODO: set the current_symptom duration to the user input
         # Code here

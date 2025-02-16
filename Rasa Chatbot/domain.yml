@@ -19,6 +19,7 @@ intents:
 - start_new_user
 - start_returning_user
 - set_user_info
+- not_known
 entities:
 - age
 - day
@@ -285,22 +286,22 @@ slots:
     influence_conversation: False
     mappings: []
 
-  agree_terms:
+  terms:
     type: bool
-    influence_conversation: False
+    influence_conversation: true
     mappings:
-    - type: from_intent
-      value: true
-      intent: affirm
-      conditions:
-      - active_loop: disclaimer_form
-        requested_slot: agree_to_terms
-    - type: from_intent
-      value: false
-      intent: deny
-      conditions:
-      - active_loop: disclaimer_form
-        requested_slot: agree_to_terms
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: disclaimer_form
+            requested_slot: terms
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: disclaimer_form
+            requested_slot: terms
 
 forms:
   user_form:
@@ -321,7 +322,7 @@ forms:
 
   disclaimer_form:
     required_slots:
-    - agree_terms
+    - terms
 
 responses:
   utter_iamabot:
@@ -379,7 +380,7 @@ actions:
 - action_ask_intensity
 - action_ask_need_assistance
 - validate_symptom_form
-- action_ask_agree_terms
+- action_ask_terms
 - validate_disclaimer_form
 - action_answer_symptom_question
 - action_set_user_info
