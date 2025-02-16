@@ -105,7 +105,6 @@ nlu:
     - yep
     - yeah
     - right
-    - yeppers
     - ye
 - intent: deny
   examples: |

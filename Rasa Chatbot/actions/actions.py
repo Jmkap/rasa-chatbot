@@ -126,7 +126,8 @@ class ValidateDisclaimerForm(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        if slot_value:
+        intent = tracker.get_intent_of_latest_message()
+        if slot_value == True:
             return {"terms": slot_value}
         
         dispatcher.utter_message(text="I am very sorry, but I cannot proceed with a session unless you agree to these terms :(")
@@ -1368,7 +1369,7 @@ class ValidateSymptomForm(FormValidationAction):
             return {"has_symptom": True, "day": slot_value, "asking_intensity": asking_intensity, 
                     "asking_duration": False, "user_symptoms": user_symptoms}
         else:
-            doc_ref = db.collection("Dialogue").document("unsure")
+            doc_ref = db.collection("Dialogue").document("unsure_day")
             doc = doc_ref.get()
             response_list = doc.to_dict().get("terms", [])
             unsure = random.choice(response_list)
