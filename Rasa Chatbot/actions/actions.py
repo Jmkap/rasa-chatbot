@@ -1340,32 +1340,40 @@ class ValidateSymptomForm(FormValidationAction):
         
         # TODO: set the current_symptom duration to the user input
         # Code here
-        for symptom in user_symptoms:
-            if symptom["name"] == current_symptom:
-                
-                # Update the 'duration' key for the matching symptom
-                symptom["duration"] = slot_value 
-                break
-        
-        # if asking intensity, set a value for day; 
-        # allowing the system to move to the next slot
-        if asking_intensity:
-            return {"day": slot_value, "asking_intensity": asking_intensity, 
+        if intent == "say_days" or intent == "say_age":
+            for symptom in user_symptoms:
+                if symptom["name"] == current_symptom:
+                    
+                    # Update the 'duration' key for the matching symptom
+                    symptom["duration"] = slot_value 
+                    break
+            
+            # if asking intensity, set a value for day; 
+            # allowing the system to move to the next slot
+            if asking_intensity:
+                return {"day": slot_value, "asking_intensity": asking_intensity, 
+                        "asking_duration": False, "user_symptoms": user_symptoms}
+            
+            # if not asking for intensity, 
+            # check if symptom list is empty
+            if symptoms:
+                # if not empty,
+                # set has_symptom to None,
+                # allowing the form to continue back to asking symptoms
+                return {"has_symptom": None, "day": slot_value, "asking_intensity": asking_intensity, 
+                        "asking_duration": False, "user_symptoms": user_symptoms}
+            # if empty,
+            # set has_symptom a value,
+            # stopping the form loop without asking for intensity
+            return {"has_symptom": True, "day": slot_value, "asking_intensity": asking_intensity, 
                     "asking_duration": False, "user_symptoms": user_symptoms}
-        
-        # if not asking for intensity, 
-        # check if symptom list is empty
-        if symptoms:
-            # if not empty,
-            # set has_symptom to None,
-            # allowing the form to continue back to asking symptoms
-            return {"has_symptom": None, "day": slot_value, "asking_intensity": asking_intensity, 
-                    "asking_duration": False, "user_symptoms": user_symptoms}
-        # if empty,
-        # set has_symptom a value,
-        # stopping the form loop without asking for intensity
-        return {"has_symptom": True, "day": slot_value, "asking_intensity": asking_intensity, 
-                "asking_duration": False, "user_symptoms": user_symptoms}
+        else:
+            doc_ref = db.collection("Dialogue").document("unsure")
+            doc = doc_ref.get()
+            response_list = doc.to_dict().get("terms", [])
+            unsure = random.choice(response_list)
+            dispatcher.utter_message(text=unsure)
+            return {"day": None, "skip": True, "execute": None}
     
     def validate_intensity(
         self,
