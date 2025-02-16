@@ -1294,7 +1294,7 @@ class ValidateSymptomForm(FormValidationAction):
         
         return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": 0, "intensity": 0 , "loop_counter": current_counter, "unique_symptoms_kb": symptoms,
                 "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": True, "execute": None}
-            
+
     def validate_day(
         self,
         slot_value: any,
@@ -1309,8 +1309,6 @@ class ValidateSymptomForm(FormValidationAction):
         current_symptom = tracker.get_slot("current_symptom")
         has_symptom = tracker.get_slot("has_symptom")
         intent = tracker.get_intent_of_latest_message()
-        
-        dispatcher.utter_message(text=f"the current intent is: {intent}")
 
         # Debug
         # dispatcher.utter_message(text=f"Entered VALIDATE DURATION")
