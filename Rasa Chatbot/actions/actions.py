@@ -1341,7 +1341,7 @@ class ValidateSymptomForm(FormValidationAction):
         
         # TODO: set the current_symptom duration to the user input
         # Code here
-        if intent == "say_days" or intent == "say_age":
+        if intent == "say_days" or intent == "say_age" or intent == "provide_intensity":
             for symptom in user_symptoms:
                 if symptom["name"] == current_symptom:
                     
