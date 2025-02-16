@@ -1274,14 +1274,14 @@ class ValidateSymptomForm(FormValidationAction):
                 # Debug
                 # dispatcher.utter_message(text=f"Skipping ask for intensity")
                 
-                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": -1, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
+                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
                         "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
             # if asking for intensity, proceed as normal
             # Debug
             # dispatcher.utter_message(text=f"Proceeding to ask for intensity")
             if not asking_duration:
                 
-                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": -1, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
+                return {"possible_conditions" : conditions, "has_symptom" : None, "day": -1, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
                         "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
             
             return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": None ,"loop_counter": current_counter, "unique_symptoms_kb": symptoms,
@@ -1294,7 +1294,7 @@ class ValidateSymptomForm(FormValidationAction):
         
         return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": 0, "intensity": 0 , "loop_counter": current_counter, "unique_symptoms_kb": symptoms,
                 "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": True, "execute": None}
-     
+            
     def validate_day(
         self,
         slot_value: any,
