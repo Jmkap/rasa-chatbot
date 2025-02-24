@@ -181,7 +181,7 @@ class ActionSaySymptom(Action):
                 fsymp = symp.format(symptom=symptom) if "{symptom}" in symp else symp
                 dispatcher.utter_message(text=fsymp)
                 #dispatcher.utter_message(text=f"Your symptom is {symptom}. Let me see how I can help!")
-            new_symptom_list.append({"symptom": symptom, "context": "NA"})
+            new_symptom_list.append(symptom)
             # Create a new session
             create_new = {
                 "control": "create_new_session"
@@ -436,13 +436,13 @@ class ActionConsultKnowledge(Action):
         
         symptom_dicts = tracker.get_slot("symptom_context_list")
         if symptom_dicts:
-            symptom_list = [symptom['symptom'] for symptom in symptom_dicts]
+            symptom_list = [symptom.lower() for symptom in symptom_dicts]
             
         user_symptoms = tracker.get_slot("user_symptoms") or []
         
         user_symptoms.extend(symptom_list)  
         #Debug Print
-        # dispatcher.utter_message(text=f"Current user symptoms: {symptom_list}")
+        # dispatcher.utter_message(text=f"Current user symptms: {symptom_list}")
         
         conditions_ref = db.collection(u'Conditions')
         possible_conditions = []
@@ -487,7 +487,6 @@ class ActionConsultKnowledge(Action):
                         user_symptoms.append(symptom_data)
                         
                     unique_symptoms_kb.append(symptom_data)
-            
         
         # Debug code
         # dispatcher.utter_message(f"Possible conditions:")
@@ -1131,9 +1130,6 @@ class ValidateSymptomForm(FormValidationAction):
                 asking_duration = True
             elif label.lower() == "weight" or label.lower() == "infertility":
                 
-                # Debug
-                # dispatcher.utter_message(text=f"Label \"pain\" is NOT same as label \"{label}\"")
-                
                 asking_intensity = False
                 asking_duration = False
 
@@ -1274,16 +1270,16 @@ class ValidateSymptomForm(FormValidationAction):
                 
                 # Debug
                 # dispatcher.utter_message(text=f"Skipping ask for intensity")
-                
+                if not asking_duration:
+                    
+                    if symptoms:    
+                        return {"possible_conditions" : conditions, "has_symptom" : None, "day": "-1", "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
+                                "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
+                    
+                    return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": 0, "intensity": 0 , "loop_counter": current_counter, "unique_symptoms_kb": symptoms,
+                            "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": True, "execute": None}
+                    
                 return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
-                        "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
-            # if asking for intensity, proceed as normal
-            # Debug
-            # dispatcher.utter_message(text=f"Proceeding to ask for intensity")
-            
-            if not asking_duration:
-                
-                return {"possible_conditions" : conditions, "has_symptom" : None, "day": "-1", "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
                         "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
             
             return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": None ,"loop_counter": current_counter, "unique_symptoms_kb": symptoms,
