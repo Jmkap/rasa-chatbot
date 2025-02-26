@@ -596,9 +596,7 @@ class ActionDisplayUserCondition(Action):
         count = 1  
         if symptoms:
             for symptom in symptoms:
-                if symptom["duration"] == -1:
-                    symptom["duration"] = "Not known"
-                    known = False
+                
                 symptom_data = {
                     "control": "record_symptom",
                     "data": {
@@ -612,12 +610,15 @@ class ActionDisplayUserCondition(Action):
                 symptom_duration = symptom["duration"]
                 symptom_intensity = symptom["intensity"]
                 if int(symptom_intensity) >= 0:
-                    if not known:
-                       dispatcher.utter_message(text=f"{count}. {symptom_name}")    
+                    if int(symptom_duration) >= 0:
+                       dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days, with intensity of {symptom_intensity} out of 10")    
                     else:
-                        dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days, with intensity of {symptom_intensity} out of 10")
+                        dispatcher.utter_message(text=f"{count}. {symptom_name} with intensity of {symptom_intensity} out of 10")
                 else:
-                    dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days.")
+                    if int(symptom_duration) >= 0:
+                        dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days.")
+                    else:
+                        dispatcher.utter_message(text=f"{count}. {symptom_name}.")
                 count+=1
         
         if user_conditions:
