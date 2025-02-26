@@ -140,6 +140,13 @@ class Action_Feelings(Action):
 
     def run(self, dispatcher: CollectingDispatcher, tracker, domain):
 
+        guidelines = f"""How to Interact with me 😃:
+        \n- For questions with a ℹ️ icon, respond with "yes" or "no." If you need more information, you can reply with "What is that?"
+        \n- For questions about duration, reply with a whole number. If you are not sure, you can reply with "I don’t know."
+        \n- For questions about intensity, use a scale from 0 to 10."""
+
+        dispatcher.utter_message(text=f"{guidelines}")
+
         # Fetch responses from Firestore
         doc_ref = db.collection("Dialogue").document("feelings")
         doc = doc_ref.get()
@@ -259,14 +266,8 @@ class ActionSetUserInfo(Action):
         else:
             greeting = f"Good evening, {username} 🌙"
 
-        guidelines = f"""How to Interact with me 😃:
-        \n- For questions with a ℹ️ icon, respond with "yes" or "no." If you need more information, you can reply with "What is that?"
-        \n- For questions about duration, reply with a whole number. If you are not sure, you can reply with "I don’t know."
-        \n- For questions about intensity, use a scale from 0 to 10."""
-
         # Respond to the user
         dispatcher.utter_message(text=f"{greeting}!")
-        dispatcher.utter_message(text=f"{guidelines}")
         if isMenopause:
             doc_ref = db.collection("Dialogue").document("meno_reminder1")
             doc = doc_ref.get()
@@ -336,13 +337,6 @@ class ActionSubmitUserInfo(Action):
             #dispatcher.utter_message(text=f"Also, {name}👋, I want you to know that I am designed to provide impressions and insights primarily for people who have not yet entered menopause. 🤔")
         dispatcher.utter_message(text=fgreet) #CHANGED
         #dispatcher.utter_message(text=f"Nice to meet you, {name}")
-
-        guidelines = f"""How to Interact with me 😃:
-        \n- For questions with a ℹ️ icon, respond with "yes" or "no." If you need more information, you can reply with "What is that?"
-        \n- For questions about duration, reply with a whole number. If you are not sure, you can reply with "I don’t know."
-        \n- For questions about intensity, use a scale from 0 to 10."""
-
-        dispatcher.utter_message(text=f"{guidelines}")
         
         user_data = {
             "control": "record_user_info",
