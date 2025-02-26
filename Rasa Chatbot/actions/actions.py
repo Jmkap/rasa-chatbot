@@ -336,6 +336,13 @@ class ActionSubmitUserInfo(Action):
             #dispatcher.utter_message(text=f"Also, {name}👋, I want you to know that I am designed to provide impressions and insights primarily for people who have not yet entered menopause. 🤔")
         dispatcher.utter_message(text=fgreet) #CHANGED
         #dispatcher.utter_message(text=f"Nice to meet you, {name}")
+
+        guidelines = f"""How to Interact with me 😃:
+        \n- For questions with a ℹ️ icon, respond with "yes" or "no." If you need more information, you can reply with "What is that?"
+        \n- For questions about duration, reply with a whole number. If you are not sure, you can reply with "I don’t know."
+        \n- For questions about intensity, use a scale from 0 to 10."""
+
+        dispatcher.utter_message(text=f"{guidelines}")
         
         user_data = {
             "control": "record_user_info",
