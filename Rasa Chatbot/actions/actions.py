@@ -480,7 +480,7 @@ class ActionConsultKnowledge(Action):
                 if symptom not in unique_symptoms_kb:
                     symptom_data = {
                         "name": symptom,
-                        "duration": 0,     # Default or placeholder value
+                        "duration": -1,     # Default or placeholder value
                         "intensity": -1     # Default or placeholder value
                     }
                     if symptom_data["name"] == current_symptom:
@@ -592,10 +592,13 @@ class ActionDisplayUserCondition(Action):
         dispatcher.utter_message(text=fin3)
         #dispatcher.utter_message("\nAll Done! Here's my impression from our session.\n") #CHANGED
         #dispatcher.utter_message("Based on your symptoms,") #CHANGED
-        
+        known = True
         count = 1  
         if symptoms:
             for symptom in symptoms:
+                if symptom["duration"] == -1:
+                    symptom["duration"] = "Not known"
+                    known = False
                 symptom_data = {
                     "control": "record_symptom",
                     "data": {
@@ -609,7 +612,10 @@ class ActionDisplayUserCondition(Action):
                 symptom_duration = symptom["duration"]
                 symptom_intensity = symptom["intensity"]
                 if int(symptom_intensity) >= 0:
-                    dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days, with intensity of {symptom_intensity} out of 10")
+                    if not known:
+                       dispatcher.utter_message(text=f"{count}. {symptom_name}")    
+                    else:
+                        dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days, with intensity of {symptom_intensity} out of 10")
                 else:
                     dispatcher.utter_message(text=f"{count}. {symptom_name}, for {symptom_duration} days.")
                 count+=1
@@ -1145,7 +1151,6 @@ class ValidateSymptomForm(FormValidationAction):
             
             # debug
             # dispatcher.utter_message(text=f"Storing symptom to user_symptoms: {matching_symptom}...")
-            
             user_symptoms.append(matching_symptom)
             
             # debug
