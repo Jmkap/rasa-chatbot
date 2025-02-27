@@ -1293,10 +1293,10 @@ class ValidateSymptomForm(FormValidationAction):
                             "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": True, "execute": None}
                     
                 return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
-                        "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
+                        "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": "day"}
             
             return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": None ,"loop_counter": current_counter, "unique_symptoms_kb": symptoms,
-                    "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "asking_intensity": asking_intensity,  "first_ask": False, "execute": None}
+                    "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "asking_intensity": asking_intensity,  "first_ask": False, "execute": "day"}
         
         # says no to symptom, don't ask day
         if symptoms:
@@ -1306,6 +1306,19 @@ class ValidateSymptomForm(FormValidationAction):
         return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": 0, "intensity": 0 , "loop_counter": current_counter, "unique_symptoms_kb": symptoms,
                 "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": True, "execute": None}
 
+    
+    def extract_day(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> Dict[Text, Any]:
+    
+        execute = tracker.get_slot("execute")
+        if execute == "day":        
+            intent = tracker.get_intent_of_latest_message()
+            if intent == "not_known":
+                day = intent
+                return {"day": day}
+            return {}
+        
     def validate_day(
         self,
         slot_value: any,
@@ -1327,7 +1340,7 @@ class ValidateSymptomForm(FormValidationAction):
         # dispatcher.utter_message(text=f"Ask for intensity?: {asking_intensity}")
         # dispatcher.utter_message(text=f"Intensity: {intensity}")
         # dispatcher.utter_message(text=f"Exiting VALIDATE DURATION")
-        
+        dispatcher.utter_message(text=f"The intent is {intent} in validate_day")
         if intent == "not_known":    
             for symptom in user_symptoms:
                 if symptom["name"] == current_symptom:
