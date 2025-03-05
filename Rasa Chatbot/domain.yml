@@ -263,6 +263,17 @@ slots:
     influence_conversation: false
     mappings: []
 
+  diagnosed:
+    type: list
+    influence_conversation: false
+    mappings: []
+
+  has_been_diagnosed:
+    type: bool
+    influence_conversation: false
+    mappings: []
+
+
   # List of labels that are related based on the initial condition
   related_labels:
     type: list

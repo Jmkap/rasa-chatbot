@@ -1215,7 +1215,7 @@ class ValidateSymptomForm(FormValidationAction):
         # dispatcher.utter_message(text=f"-------------------------------------")
         
         # Display progress so far if there's a new diagnosis.
-        if has_been_diagnosed:
+        if has_been_diagnosed and not (asking_duration or asking_intensity):
             if len(diagnosed) > 1 or not diagnosed[0]["Life-Threat"]:
                 doc_ref = db.collection("Dialogue").document("symp_sofar")
                 doc = doc_ref.get()
@@ -1289,13 +1289,13 @@ class ValidateSymptomForm(FormValidationAction):
                         return {"possible_conditions" : conditions, "has_symptom" : None, "day": "-1", "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
                                 "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": None}
                     
-                    return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": 0, "intensity": 0 , "loop_counter": current_counter, "unique_symptoms_kb": symptoms,
+                    return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": "-1", "intensity": 0 , "loop_counter": current_counter, "unique_symptoms_kb": symptoms,
                             "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "first_ask": True, "execute": None}
                     
-                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False,
+                return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": 1 ,"loop_counter": current_counter, "first_ask": False, "diagnosed": diagnosed, "has_been_diagnosed": has_been_diagnosed,
                         "unique_symptoms_kb": symptoms, "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "execute": "day"}
             
-            return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": None ,"loop_counter": current_counter, "unique_symptoms_kb": symptoms,
+            return {"possible_conditions" : conditions, "has_symptom" : slot_value, "day": None, "intensity": None ,"loop_counter": current_counter, "unique_symptoms_kb": symptoms, "diagnosed": diagnosed, "has_been_diagnosed": has_been_diagnosed,
                     "user_symptoms" : user_symptoms, "diagnosed_condition": diagnosed_conditions, "asking_duration": asking_duration, "asking_intensity": asking_intensity,  "first_ask": False, "execute": "day"}
         
         # says no to symptom, don't ask day
@@ -1340,7 +1340,57 @@ class ValidateSymptomForm(FormValidationAction):
         # dispatcher.utter_message(text=f"Ask for intensity?: {asking_intensity}")
         # dispatcher.utter_message(text=f"Intensity: {intensity}")
         # dispatcher.utter_message(text=f"Exiting VALIDATE DURATION")
-        dispatcher.utter_message(text=f"The intent is {intent} in validate_day")
+        
+        has_been_diagnosed = tracker.get_slot("has_been_diagnosed")
+        diagnosed = tracker.get_slot("diagnosed")
+        
+        if has_been_diagnosed and not asking_intensity:
+            if len(diagnosed) > 1 or not diagnosed[0]["Life-Threat"]:
+                doc_ref = db.collection("Dialogue").document("symp_sofar")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                sympsofar = random.choice(response_list)
+                dispatcher.utter_message(text=sympsofar)
+                #dispatcher.utter_message(text="Your symptoms so far are:") #CHANGED
+                count = 1
+                for symptom in user_symptoms:
+                    symptom_name = symptom["name"]
+                    dispatcher.utter_message(text=f"{count}. {symptom_name}")
+                    count += 1
+                count = 1
+                
+                for condition in diagnosed:
+                    condition_name = condition['name']
+                    
+                    # get explanation
+                    if isinstance(condition["Explanation"], list):
+                        random_explanation = random.choice(condition["Explanation"])
+                    elif isinstance(condition["Explanation"], str):
+                        random_explanation = condition["Explanation"]
+                    else:
+                        random_explanation = "No explanation available."
+                    
+                    if count <= 1:
+                        doc_ref = db.collection("Dialogue").document("curr_match")
+                        doc = doc_ref.get()
+                        response_list = doc.to_dict().get("terms", [])
+                        curr_match = random.choice(response_list)
+                        curr_match= "\n"+curr_match
+                        dispatcher.utter_message(text=curr_match)
+                        #dispatcher.utter_message(text="\nYour current symptoms match the following conditions:") #CHANGED
+                    
+                    if not condition["Life-Threat"]:
+                        dispatcher.utter_message(text=f"{count}. Name: {condition_name}")
+                    
+                    # Display explanations and references
+                    dispatcher.utter_message(text=random_explanation)
+                    
+                    references = "\n".join(condition["References"])
+                    dispatcher.utter_message(text=f"Reference/s:\n{references}")
+                    
+                    count+=1
+                has_been_diagnosed = False
+        
         if intent == "not_known":    
             for symptom in user_symptoms:
                 if symptom["name"] == current_symptom:
@@ -1350,7 +1400,7 @@ class ValidateSymptomForm(FormValidationAction):
                     break
             
             if asking_intensity:
-                return {"day": slot_value, "asking_intensity": asking_intensity, 
+                return {"day": slot_value, "asking_intensity": asking_intensity, "has_been_diagnosed": has_been_diagnosed,
                         "asking_duration": False, "user_symptoms": user_symptoms}
             if symptoms:
                 # if not empty,
@@ -1358,6 +1408,7 @@ class ValidateSymptomForm(FormValidationAction):
                 # allowing the form to continue back to asking symptoms
                 return {"has_symptom": None, "day": slot_value, "asking_intensity": asking_intensity, 
                         "asking_duration": False, "user_symptoms": user_symptoms}
+                
             return {"has_symptom": True, "day": slot_value, "asking_intensity": asking_intensity, 
             "asking_duration": False, "user_symptoms": user_symptoms}
         
@@ -1374,7 +1425,7 @@ class ValidateSymptomForm(FormValidationAction):
             # if asking intensity, set a value for day; 
             # allowing the system to move to the next slot
             if asking_intensity:
-                return {"day": slot_value, "asking_intensity": asking_intensity, 
+                return {"day": slot_value, "asking_intensity": asking_intensity, "has_been_diagnosed": has_been_diagnosed,
                         "asking_duration": False, "user_symptoms": user_symptoms}
             
             # if not asking for intensity, 
@@ -1416,6 +1467,56 @@ class ValidateSymptomForm(FormValidationAction):
         # dispatcher.utter_message(text=f"Exiting VALIDATE INTENSITY")
         # dispatcher.utter_message(text=f"Updated {current_symptom}")
         
+        has_been_diagnosed = tracker.get_slot("has_been_diagnosed")
+        diagnosed = tracker.get_slot("diagnosed")
+        
+        if has_been_diagnosed:
+            if len(diagnosed) > 1 or not diagnosed[0]["Life-Threat"]:
+                doc_ref = db.collection("Dialogue").document("symp_sofar")
+                doc = doc_ref.get()
+                response_list = doc.to_dict().get("terms", [])
+                sympsofar = random.choice(response_list)
+                dispatcher.utter_message(text=sympsofar)
+                #dispatcher.utter_message(text="Your symptoms so far are:") #CHANGED
+                count = 1
+                for symptom in user_symptoms:
+                    symptom_name = symptom["name"]
+                    dispatcher.utter_message(text=f"{count}. {symptom_name}")
+                    count += 1
+                count = 1
+                
+                for condition in diagnosed:
+                    condition_name = condition['name']
+                    
+                    # get explanation
+                    if isinstance(condition["Explanation"], list):
+                        random_explanation = random.choice(condition["Explanation"])
+                    elif isinstance(condition["Explanation"], str):
+                        random_explanation = condition["Explanation"]
+                    else:
+                        random_explanation = "No explanation available."
+                    
+                    if count <= 1:
+                        doc_ref = db.collection("Dialogue").document("curr_match")
+                        doc = doc_ref.get()
+                        response_list = doc.to_dict().get("terms", [])
+                        curr_match = random.choice(response_list)
+                        curr_match= "\n"+curr_match
+                        dispatcher.utter_message(text=curr_match)
+                        #dispatcher.utter_message(text="\nYour current symptoms match the following conditions:") #CHANGED
+                    
+                    if not condition["Life-Threat"]:
+                        dispatcher.utter_message(text=f"{count}. Name: {condition_name}")
+                    
+                    # Display explanations and references
+                    dispatcher.utter_message(text=random_explanation)
+                    
+                    references = "\n".join(condition["References"])
+                    dispatcher.utter_message(text=f"Reference/s:\n{references}")
+                    
+                    count+=1
+                has_been_diagnosed = False
+        
         # TODO: set the current_symptom duration to the user input
         # Code here
         for symptom in user_symptoms:
@@ -1440,7 +1541,7 @@ class ValidateSymptomForm(FormValidationAction):
             # Debug
             # dispatcher.utter_message(text=f"User still has symptoms, continuing back to Ask Symptoms")
             
-            return {"has_symptom": None, "intensity": slot_value, "asking_intensity": False, "user_symptoms": user_symptoms}
+            return {"has_symptom": None, "intensity": slot_value, "asking_intensity": False, "user_symptoms": user_symptoms, "has_been_diagnosed": has_been_diagnosed}
         
         # if no more symptoms,
         # set a value to has_symptom, ending the active loop
