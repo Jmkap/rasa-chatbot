@@ -701,7 +701,9 @@ class ActionDisplayUserCondition(Action):
         dispatcher.utter_message(text=compl)
         #dispatcher.utter_message(text="The session is complete! A PDF report is now available for your convenience. Please tap the download button on the upper right corner of the app to acquire it.")
         #CHANGED
-        dispatcher.utter_message(text=f"This is an important reminder that this is NOT a diagnosis and that I am NOT a doctor. If you're experiencing any symptoms that worry you, please consult your doctor.")
+        dispatcher.utter_message(text=f"This is an important reminder that this is NOT a diagnosis and that I am NOT a doctor.")
+        dispatcher.utter_message(text=f"If you're experiencing any menstrual-related symptoms that worry you, please consult an OBGYN (Obstetrician-gynecologist) or gynecologist.")
+        dispatcher.utter_message(text=f"If you are suspecting pregnancy, please consult with an OB(Obstetrician) or OBGYN(Obstetrician-gynecologist).")
         return [AllSlotsReset()]
 
 
