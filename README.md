@@ -1,4 +1,4 @@
-*WAIT! YOUR FILES ARE INCOMPLETE*
+## **Firestore Database Initial Steps**
 ---------------------------------------------------
 Get a service account.
 - need to be added to the database
