@@ -1,5 +1,4 @@
-## **Firestore Database Initial Steps**
----------------------------------------------------
+# **Firestore Database Initial Steps**
 Get a service account.
 - need to be added to the database
 - Go to https://console.cloud.google.com/iam-admin/serviceaccounts?project=menstrual-app-4b6b5&supportedpurview=project and select the menstrual app project
