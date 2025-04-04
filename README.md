@@ -1,18 +1,23 @@
 # **Firestore Database Initial Steps**
 ### Get a service account.
 When using a firestore database and attempting to access it through code, you first need to make sure that you have a service account.
-- need to be added to the database
-- Go to https://console.cloud.google.com/iam-admin/serviceaccounts?project=menstrual-app-4b6b5&supportedpurview=project and select the menstrual app project
-- Click the enabled "drflow-knowledge..."
-- Go to keys
-- Download a **JSON** key
+- You need to be added as a member of the project in **firebase** where your **firestore database** is stored.
+- Once added, go to https://console.cloud.google.com/
+- At the at the top left side inside the menu bar, to the right of the **Google Cloud Logo**, you can see the name of the project you are currently in. Click that name and ensure you are inside the correct project
+- Click on the search bar at the top and type in "Service Account"
+- It should show under the search results "Service Accounts" with "IAM & Admin" as its subtext; click that.
+- Select an appropriate service account or create a new service account and select it
+- At the top menu bar that contains "Details", "Permissions", "Keys", "Metrics", and "Logs", select "Keys"
+- Click the "Add key" button and then "Create new key"
+- Select the **JSON** key which should automatically download your service account file that contains this key
+- This file goes into the **service account folder** and is recognized within the source code as **knowledgebase.json**, so be sure to rename it or change the file name within the code.
 
 **IMPORTANT!**
 ----------------------------------------------------
 - Ensure that you **DO NOT** commit your **virtual environment**.
-- Also **DO NOT** commit the **service account**.
-- The folder named **.rasa** contains caches whenever you train the chatbot. I have removed the cache which might require you to train the chatbot before running
-- The .rasa/cache folder size might become large overtime. keep an eye on it.
+- Also **DO NOT** commit the **service account**. The service account **MUST NOT** be shared online in any way to keep knowledgebase access safe.
+- The folder named **.rasa** contains caches that are stored whenever the chatbot is trained. These files are heavy on the storage and can be cleared, but it will affect training speed. 
+- The .rasa/cache folder size might become large over time. keep an eye on it.
 - add the name of your virtual environment to .gitignore
 
 ----------------------------------------------------
@@ -24,31 +29,43 @@ Things to do before anything else:
 
 1. Python 3.8 - for some reason, rasa install packages 
 do not work with higher versions
+- Ensure that the working Python in your environment variables or at least within the virtual environment is exactly **3.8**
+- This applies when attempting to install **RASA OPEN SOURCE** through **pip install**
 
-2. Create a Virtual Environment(VENV) to setup rasa
+3. Create a Virtual Environment(VENV) to setup rasa
 	- run: "python -m venv _VENV_NAME_HERE_"
 
-3. Run your created VENV
+4. Run your created VENV
 	- run: ".\_CREATED_VENV_NAME_HERE_\scripts\activate"
-	- *NOTE*: the name of your venv encased in parenthesis 
+	- *NOTE*: the name of your venv, encased in parenthesis,
 		should show in the command line if successful
 
-4. Install Rasa
+5. Install Rasa
 	- run: "pip install rasa"
 	- IN CASE OF ERROR:
-		- check if correct python version, run: "python --version" in your VENV
-		- if correct version but still error, run: "python -m pip install --upgrade pip"
-		- if all of the above is done but still error, further troubleshooting is required
-		Make sure to check the error prints to know what's wrong (ask help from Jm if can't fix)
+		- Check if the correct Python version, run: "python --version" in your VENV
+		- If the correct version but still error, run: "python -m pip install --upgrade pip"
+		- If all of the above has been done but the error persists, further troubleshooting may be required on a case-by-case basis.
+		- Make sure to check on the error codes which might differ for each device.
+		- Some familiar/previously encountered errors:
+  			- psycopg2 error: "Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/"
+   				- This error is usually fixed by updating microsoft visual c++ to the latest version
+       			- SciPy Error: "SciPy requires GCC >= 8.0"
+          			- This error is resolved simply by updating the current device's GCC version to >= 8.0 or simply the latest version either through **mingw-w64** or any other known or 					familiar methods
+             			- Check the current GCC version by doing "gcc --version". If command is not recognized, GCC might not be properly installed or is not installed at all.
+                	- Python Version Error: "...requires python 3.8 or greater"
+                 		- This is usually fixed by installing **Python 3.8 specifically**. There have been multiple attempts to use the latest versions, yet display the same error during 					installation
+                   		- Double-check environment variables and ensure that **Python 3.8 is above any other listed Python version**.
 
-5. Install spaCy
-	- run: "pip install spacy"
+6. Install spaCy
+	- run: "pip install spacy==3.4.4"
 	- same steps with installing rasa
+ 	- 3.4.4 is needed since the later versions require Python 3.9 or greater
 
-6. Download the spaCy language model:
+7. Download the spaCy language model:
 	- run: "python -m spacy download en_core_web_md"
 
-7. Download and put a Service Account for the Firebase Project in the "service account" folder
+8. Download and put a Service Account for the Firebase Project in the "service account" folder
 	- Read note in "service account folder"
 
 ===============ALL SET | More notes below================
