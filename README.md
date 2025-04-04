@@ -1,5 +1,6 @@
 # **Firestore Database Initial Steps**
-Get a service account.
+### Get a service account.
+When using a firestore database and attempting to access it through code, you first need to make sure that you have a service account.
 - need to be added to the database
 - Go to https://console.cloud.google.com/iam-admin/serviceaccounts?project=menstrual-app-4b6b5&supportedpurview=project and select the menstrual app project
 - Click the enabled "drflow-knowledge..."
