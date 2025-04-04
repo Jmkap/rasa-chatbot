@@ -82,13 +82,16 @@ The .yml files mainly include chatbot settings, nlu, domain, stories, etc.
 - stories.yml: includes stories that dictate how a conversation MIGHT go. The chatbot may deviate from a defined story 
 	depending on it's training data and other stories or rules
 
-- rules.yml: includes rules that dictate how a conversationg SHOULD go. storiese and rules need to be distinct from each other
-	if a story/rule looks the same, this will cause "confusion" for the chatbot, meaning the conversation might not go where expected
+- rules.yml: includes rules that dictate how a conversation SHOULD go. These are paths that the chatbot attempts to follow no matter what and are not as flexible as stories. Stories and rules need to be distinct from each other if a story/rule looks the same, this will cause "confusion" for the chatbot, meaning the conversation might not go where expected
 
 - nlu.yml: this is where intents are defined alongside other things like lookup-tables. Everything NLU.
 
-- credentials, config, endpoints.yml: Mostly concerned with the settings of the chatbot. The pipelines to be used, credentials, or the url of the actions.py server
-	(if not confident with the changes in these files, MAKE SURE IT WILL NOT BREAK THE CHATBOT FIRST OR CREATE A BACKUP)
+- credentials.yml: Mostly untouched, but contains credentials information of the chatbot
+- config.yml: File which decides which pipelines should be used for training. For a list of pipelines and their functions, visit the documentation of Rasa Open Source: https://legacy-docs-oss.rasa.com/docs/rasa/model-configuration
+- endpoints.yml: Mostly concerned with addresses or endpoints that the running rasa server will communicate in. In current development, only the endpoints for the action server is configured.
+
+- Action Server: This is the server that runs the actions.py which allows the chatbot to do custom actions. It is started by executing the command "rasa run actions" in a CLI.
+- Rasa Server: This is the server that runs the Rasa Chatbot itself. It is started by executing "rasa shell" which runs the latest trained model inside the CLI. Chatting will only be available through the CLI
 
 ------------------------------------------------------------------
 *FOR FURTHER INFORMATION, VISIT THE RASA API DOCUMENTATION: https://rasa.com/docs/rasa/*
@@ -109,7 +112,7 @@ The actions.py is a python file where you can define custom actions
 - This is where the knowledge base is loaded, forms are modified, impressions are made, or any specific undefined algorithm is done.
 
 - Each function represents a custom action and some functions are already existing actions that are overridden for more specific uses (like Validate*FormName*Form)
-	(more info on these online/documentation)
+	(more info on this online / documentation)
 
 - We are also able to store entities from other sources into the chatbot's existing entities, provided that the stored entities are the appropriate/expected data type (look at domain.yml for entities)
 
@@ -125,20 +128,24 @@ To run and use the chatbot:
 5. The other CLI will run "actions.py", run: "rasa run actions" or "rasa run actions --debug" if you want to see the errors/exceptions that happened
 6. Wait for both CLI to finish running, this will usually be denoted by "finished running" messages". 
 
-Running "rasa shell" should allow you to chat with the  chatbot once finished loading.
+Running "rasa shell" should allow you to chat with the chatbot once finished loading.
 Running "rasa run actions.py" or "rasa run actions.py --debug" should  show the functions loaded and will keep that CLI running
-There are other commands to execute both actions.py or to test the chatbot.
+There are other commands to execute both actions.py and test the chatbot.
 
 -------------------------------------------------------------------------
 
 If you want to run with the UI:
-1. Android Studios url should be changed to your current IPv4 Address found in the CMD "ipconfig"
+1. Android Studios URL should be changed to your current IPv4 Address found in the CMD "ipconfig" (If attempting to run locally)
+	- If through a server, then it should be the server's public IPv4 instead.
 2. actions.py must be run before proceeding.
 3. instead of running "rasa shell", run: "rasa run -m models --enable-api --endpoints endpoints.yml"
-4. If it all works, rasa should connect to a server and running the android app should show an initial message from the chatbot (unless rest.api error occured)
-5. If troubleshooting, check ALL the CLI for error messages, only one of them will show the actual error/exception depending on where the exception is.
+4. adding "--debug" at the end of the command should show much more detail on runtime.
+5. Adjusting the waiting time for REST API to produce an error is possible by adding "--response-time 15" to make the server wait for 15 seconds before returning a REST API error.
+6. If it all works, rasa should connect to a server, and running the Android app should show an initial message from the chatbot (unless rest.api error occured)
+7. If troubleshooting, check ALL the CLI for error messages, only one of them will show the actual error/exception depending on where the exception is.
 
 -------------------------------------------------------------------------
 
 Other Possibly Helpful souces:
-1. https://www.youtube.com/playlist?list=PLp9h3aIPyUbZyCUP4ELTaS2ajxKNWaSnU
+1. https://legacy-docs-oss.rasa.com/docs/rasa/
+2. https://www.youtube.com/playlist?list=PLp9h3aIPyUbZyCUP4ELTaS2ajxKNWaSnU
